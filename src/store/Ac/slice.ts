@@ -36,6 +36,9 @@ export const acSlice = createSlice({
         updateTargetTemperature: (state, action: PayloadAction<number>) => {
             state.targetTemperature = action.payload;
         },
+        updateManagementStatus: (state, action: PayloadAction<boolean>) => {
+            state.isManaged = action.payload;
+        }
     },
 });
 

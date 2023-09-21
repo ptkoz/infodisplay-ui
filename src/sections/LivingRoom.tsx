@@ -7,7 +7,6 @@ import { toLocaleUnit } from "../utils/toLocaleUnit.ts";
 import { AcInfoBox } from "./AcInfoBox.tsx";
 import Degraded from "../layout/Degraded.tsx";
 
-
 const LivingRoomBox = styled(Box)`
     grid-column: 1 / span 1;
     grid-row: 1 / span 1;
@@ -16,7 +15,7 @@ const LivingRoomBox = styled(Box)`
 const Value = styled.div`
     position: relative;
     font-size: min(9vh, 10vw);
-    color: ${(props: { isDegraded: boolean }) => props.isDegraded ? "#222" : "#fff"};
+    color: ${(props: { isDegraded: boolean }) => (props.isDegraded ? "#222" : "#fff")};
 `;
 
 const Humidity = styled.span`
@@ -30,6 +29,7 @@ function LivingRoom() {
     const humidity = useAppSelector((state) => state.measures.livingRoom.humidity);
     const isDegraded = useAppSelector((state) => state.measures.livingRoom.isDegraded);
     const lastUpdate = useAppSelector((state) => state.measures.livingRoom.lastTemperatureUpdate);
+    const isAcManaged = useAppSelector((state) => state.ac.isManaged);
 
     return (
         <LivingRoomBox>
@@ -39,7 +39,7 @@ function LivingRoom() {
                 <Humidity>{toLocaleFixed(humidity)}%</Humidity>
                 {isDegraded && <Degraded since={lastUpdate} />}
             </Value>
-            <AcInfoBox />
+            {isAcManaged && <AcInfoBox />}
         </LivingRoomBox>
     );
 }

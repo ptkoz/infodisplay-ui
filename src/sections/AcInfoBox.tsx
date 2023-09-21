@@ -8,7 +8,7 @@ import Degraded from "../layout/Degraded.tsx";
 
 const InfoBox = styled.div`
     position: absolute;
-    right: 0;
+    right: 1vh;
     top: 50%;
     transform: translateY(-50%);
 `;
