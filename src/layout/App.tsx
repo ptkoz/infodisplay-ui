@@ -4,16 +4,23 @@ import styled from "@emotion/styled";
 import Bedroom from "../sections/Bedroom.tsx";
 import Outdoor from "../sections/Outdoor.tsx";
 import { useEffect } from "react";
-import { store } from "../store.ts";
+import { store } from "../store/store.ts";
 import { Provider } from "react-redux";
 import Forecast from "../sections/Forecast.tsx";
 import { isString } from "../utils/typeGuards.ts";
+import { createTheme, ThemeProvider } from "@mui/material";
 
 const Container = styled.div`
     display: grid;
     grid-template-columns: 50vw 50vw;
     grid-template-rows: 24vh 44vh 32vh;
 `;
+
+const darkTheme = createTheme({
+    palette: {
+        mode: 'dark',
+    },
+});
 
 function App() {
     useEffect(() => {
@@ -62,14 +69,16 @@ function App() {
     }, []);
 
     return (
-        <Provider store={store}>
-            <Container>
-                <LivingRoom />
-                <Bedroom />
-                <Outdoor />
-                <Forecast />
-            </Container>
-        </Provider>
+        <ThemeProvider theme={darkTheme}>
+            <Provider store={store}>
+                <Container>
+                    <LivingRoom />
+                    <Bedroom />
+                    <Outdoor />
+                    <Forecast />
+                </Container>
+            </Provider>
+        </ThemeProvider>
     );
 }
 

@@ -1,13 +1,14 @@
 import styled from "@emotion/styled";
 import Label from "../layout/Label.tsx";
 import Box from "../layout/Box.tsx";
-import { useAppSelector } from "../store.ts";
+import { useAppSelector } from "../store/store.ts";
 import { toLocaleFixed } from "../utils/toLocaleFixed.ts";
 import { useEffect, useState } from "react";
 import { CurrentWeather, getCurrentWeather, getNextSunriseOrSunsetAfter } from "../utils/weather.ts";
 import { toLocaleUnit } from "../utils/toLocaleUnit.ts";
 import { addHours, addSeconds, differenceInMilliseconds, min } from "date-fns";
 import runBackgroundTask from "../utils/runBackgroundTask.ts";
+import Degraded from "../layout/Degraded.tsx";
 
 const OutdoorBox = styled(Box)`
     grid-column: 1 / span 2;
@@ -15,7 +16,9 @@ const OutdoorBox = styled(Box)`
 `;
 
 const Value = styled.div`
+    position: relative;
     font-size: min(20vh, 12vw);
+    color: ${(props: { isDegraded: boolean }) => props.isDegraded ? "#222" : "#fff"};
 `;
 
 const Humidity = styled.span`
@@ -39,6 +42,8 @@ const Weather = styled.div`
 function Bedroom() {
     const temperature = useAppSelector((state) => state.measures.outdoor.temperature);
     const [weather, setWeather] = useState<CurrentWeather>({ code: "01d", desc: "słonecznie" });
+    const isDegraded = useAppSelector((state) => state.measures.outdoor.isDegraded);
+    const lastUpdate = useAppSelector((state) => state.measures.outdoor.lastTemperatureUpdate);
 
     useEffect(() => {
         let refreshTimeout: NodeJS.Timer | null = null;
@@ -74,9 +79,10 @@ function Bedroom() {
                 <img src={`/assets/${weather.code}.svg`} alt={weather.desc} />
                 {weather.desc}
             </Weather>
-            <Value>
+            <Value isDegraded={isDegraded}>
                 {toLocaleUnit(temperature, "°C")}
                 <Humidity>{toLocaleFixed(weather.humidity)}%</Humidity>
+                {isDegraded && <Degraded since={lastUpdate} />}
             </Value>
         </OutdoorBox>
     );
