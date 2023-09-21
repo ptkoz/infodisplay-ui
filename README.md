@@ -3,7 +3,7 @@
 Subscribed to status & measure updates from [Home Climate Controller](https://github.com/ptkoz/infodisplay-controller) (
 through websockets).
 
-![Screen View](screenshots/screen.jpg)
+![Screen View](screenshots/screen.png)
 
 ## Features
 
