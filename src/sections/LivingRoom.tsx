@@ -14,12 +14,12 @@ const LivingRoomBox = styled(Box)`
 
 const Value = styled.div`
     position: relative;
-    font-size: min(9vh, 10vw);
+    font-size: min(9vh, 5vw);
     color: ${(props: { isDegraded: boolean }) => (props.isDegraded ? "#222" : "#fff")};
 `;
 
 const Humidity = styled.span`
-    font-size: min(3vh, 4vw);
+    font-size: min(3vh, 3vw);
     margin-left: min(2vh, 2vw);
     color: #aaaaaa;
 `;

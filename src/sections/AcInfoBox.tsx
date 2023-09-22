@@ -9,8 +9,7 @@ import Degraded from "../layout/Degraded.tsx";
 const InfoBox = styled.div`
     position: absolute;
     right: 1vh;
-    top: 50%;
-    transform: translateY(-50%);
+    top: min(2vh, 2vw);
 `;
 
 const Container = styled.div`
@@ -26,7 +25,7 @@ interface StatusProps {
 }
 
 const TargetTemperature = styled.div`
-    font-size: min(3.5vh, 4.5vw);
+    font-size: min(3.5vh, 2.5vw);
     color: ${(props: StatusProps) => (props.isDegraded ? "#222" : "#aaa")};
     margin: 0 0.2em;
 `;
@@ -36,13 +35,13 @@ const styledIconsOptions = {
 };
 
 const BlowingIcon = styled(AirIcon, styledIconsOptions)`
-    font-size: min(2.5vh, 2.5vw);
+    font-size: min(2.5vh, 2vw);
     color: ${(props: StatusProps) => (props.isDegraded ? "#222" : props.isWorking ? "#4984BF" : "#444")};
     display: ${(props: StatusProps) => (props.isWorking ? "block" : "none")};
 `;
 
 const AcUnitPictogram = styled(AcUnitIcon, styledIconsOptions)`
-    font-size: min(3vh, 3vw);
+    font-size: min(3vh, 2.5vw);
     color: ${(props: StatusProps) => (props.isDegraded ? "#222" : props.isWorking ? "#4984BF" : "#444")};
 `;
 
