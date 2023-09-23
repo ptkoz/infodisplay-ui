@@ -4,7 +4,7 @@ import Box from "../layout/Box.tsx";
 import { useAppSelector } from "../store/store.ts";
 import { toLocaleFixed } from "../utils/toLocaleFixed.ts";
 import { toLocaleUnit } from "../utils/toLocaleUnit.ts";
-import { AcInfoBox } from "./AcInfoBox.tsx";
+import { DeviceInfoBox } from "./DeviceInfoBox.tsx";
 import Degraded from "../layout/Degraded.tsx";
 
 const LivingRoomBox = styled(Box)`
@@ -29,7 +29,6 @@ function LivingRoom() {
     const humidity = useAppSelector((state) => state.measures.livingRoom.humidity);
     const isDegraded = useAppSelector((state) => state.measures.livingRoom.isDegraded);
     const lastUpdate = useAppSelector((state) => state.measures.livingRoom.lastTemperatureUpdate);
-    const isAcManaged = useAppSelector((state) => state.ac.isManaged);
 
     return (
         <LivingRoomBox>
@@ -39,7 +38,7 @@ function LivingRoom() {
                 <Humidity>{toLocaleFixed(humidity)}%</Humidity>
                 {isDegraded && <Degraded since={lastUpdate} />}
             </Value>
-            {isAcManaged && <AcInfoBox />}
+            <DeviceInfoBox />
         </LivingRoomBox>
     );
 }

@@ -14,6 +14,7 @@ const ForecastBox = styled(Box)`
     flex-flow: row nowrap;
     justify-content: center;
     align-items: flex-start;
+    gap: 0.5em;
 `;
 
 const ForecastItem = styled.div`

@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { HumidityUpdatePayload, TemperatureUpdatePayload } from "./types.ts";
+import { HumidityUpdatePayload, Room, TemperatureUpdatePayload } from "./types.ts";
 import { MAX_TEMPERATURE_AGE_SECONDS } from "./middleware.ts";
 import { addSeconds, parseISO } from "date-fns";
 
@@ -45,13 +45,13 @@ export const measuresSlice = createSlice({
     reducers: {
         degrade: (state, action: PayloadAction<number>) => {
             switch (action.payload) {
-                case 0x20:
+                case Room.LIVING_ROOM:
                     state.livingRoom.isDegraded = true;
                     break;
-                case 0x21:
+                case Room.BEDROOM:
                     state.bedroom.isDegraded = true;
                     break;
-                case 0x41:
+                case Room.OUTDOOR:
                     state.outdoor.isDegraded = true;
                     break;
             }
@@ -60,17 +60,17 @@ export const measuresSlice = createSlice({
             const isDegraded = addSeconds(parseISO(action.payload.timestamp), MAX_TEMPERATURE_AGE_SECONDS) < new Date();
 
             switch (action.payload.kind) {
-                case 0x20:
+                case Room.LIVING_ROOM:
                     state.livingRoom.lastTemperatureUpdate = action.payload.timestamp;
                     state.livingRoom.temperature = action.payload.temperature;
                     state.livingRoom.isDegraded = isDegraded;
                     break;
-                case 0x21:
+                case Room.BEDROOM:
                     state.bedroom.lastTemperatureUpdate = action.payload.timestamp;
                     state.bedroom.temperature = action.payload.temperature;
                     state.bedroom.isDegraded = isDegraded;
                     break;
-                case 0x41:
+                case Room.OUTDOOR:
                     state.outdoor.lastTemperatureUpdate = action.payload.timestamp;
                     state.outdoor.temperature = action.payload.temperature;
                     state.outdoor.isDegraded = isDegraded;
@@ -79,10 +79,10 @@ export const measuresSlice = createSlice({
         },
         updateHumidity: (state, action: PayloadAction<HumidityUpdatePayload>) => {
             switch (action.payload.kind) {
-                case 0x20:
+                case Room.LIVING_ROOM:
                     state.livingRoom.humidity = action.payload.humidity;
                     break;
-                case 0x21:
+                case Room.OUTDOOR:
                     state.bedroom.humidity = action.payload.humidity;
                     break;
             }

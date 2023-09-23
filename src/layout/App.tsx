@@ -9,6 +9,7 @@ import { Provider } from "react-redux";
 import Forecast from "../sections/Forecast.tsx";
 import { isString } from "../utils/typeGuards.ts";
 import { createTheme, ThemeProvider } from "@mui/material";
+import Settings from "../sections/Settings.tsx";
 
 const Container = styled.div`
     display: grid;
@@ -20,6 +21,12 @@ const darkTheme = createTheme({
     palette: {
         mode: 'dark',
     },
+    typography: {
+        fontWeightLight: "100",
+        fontWeightMedium: "100",
+        fontWeightRegular: "100",
+        fontWeightBold: "300",
+    }
 });
 
 function App() {
@@ -76,6 +83,7 @@ function App() {
                     <Bedroom />
                     <Outdoor />
                     <Forecast />
+                    <Settings />
                 </Container>
             </Provider>
         </ThemeProvider>

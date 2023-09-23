@@ -1,22 +1,38 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { addSeconds, parseISO } from "date-fns";
 import { MAX_PING_AGE_SECONDS } from "./middleware.ts";
+import { DeviceState } from "./types.ts";
+import { MAX_TEMP, MIN_TEMP } from "../../sections/Settings/TemperatureMarks.ts";
+import { Room } from "../Measures/types.ts";
 
 export interface AcState {
-    isManaged: boolean; // do we manage AC or is management off
-    lastPingTimestamp: string; // when the most recent ping was received
-    isDegraded: boolean; // was the most recent ping more than 3 minutes ago
-
-    isWorking: boolean; // is ac unit currently working
-    targetTemperature: number; // what is the configured target temperature
+    mode: "day" | "night";
+    cooling: DeviceState;
+    heating: DeviceState;
 }
 
 const initialState: AcState = {
-    isManaged: false,
-    isDegraded: true,
-    lastPingTimestamp: "1970-01-01T00:00:00",
-    isWorking: false,
-    targetTemperature: 30.0,
+    mode: "day",
+    cooling: {
+        lastPingTimestamp: "1970-01-01T00:00:00",
+        isDegraded: true,
+        isWorking: false,
+        targetTemperature: {
+            day: MAX_TEMP,
+            night: MAX_TEMP,
+        },
+        managedRooms: [],
+    },
+    heating: {
+        lastPingTimestamp: "1970-01-01T00:00:00",
+        isDegraded: true,
+        isWorking: false,
+        targetTemperature: {
+            day: MIN_TEMP,
+            night: MIN_TEMP,
+        },
+        managedRooms: [],
+    },
 };
 
 export const acSlice = createSlice({
@@ -24,21 +40,33 @@ export const acSlice = createSlice({
     initialState,
     reducers: {
         degrade: (state) => {
-            state.isDegraded = true;
+            state.cooling.isDegraded = true;
+            state.heating.isDegraded = true;
         },
         ping: (state, action: PayloadAction<string>) => {
-            state.lastPingTimestamp = action.payload;
-            state.isDegraded = addSeconds(parseISO(action.payload), MAX_PING_AGE_SECONDS) < new Date();
+            state.cooling.lastPingTimestamp = action.payload;
+            state.heating.lastPingTimestamp = action.payload;
+            state.cooling.isDegraded = addSeconds(parseISO(action.payload), MAX_PING_AGE_SECONDS) < new Date();
+            state.heating.isDegraded = addSeconds(parseISO(action.payload), MAX_PING_AGE_SECONDS) < new Date();
         },
         updateStatus: (state, action: PayloadAction<boolean>) => {
-            state.isWorking = action.payload;
+            state.cooling.isWorking = action.payload;
         },
         updateTargetTemperature: (state, action: PayloadAction<number>) => {
-            state.targetTemperature = action.payload;
+            state.cooling.targetTemperature.day = action.payload;
+            state.heating.targetTemperature.day = action.payload - 4.3;
+            state.cooling.targetTemperature.night = action.payload - 2.7;
+            state.heating.targetTemperature.night = action.payload - 5.2;
         },
         updateManagementStatus: (state, action: PayloadAction<boolean>) => {
-            state.isManaged = action.payload;
-        }
+            state.cooling.managedRooms = [];
+            state.heating.managedRooms = [];
+
+            if (action.payload) {
+                state.cooling.managedRooms.push(Room.LIVING_ROOM)
+                state.heating.managedRooms.push(Room.LIVING_ROOM)
+            }
+        },
     },
 });
 
