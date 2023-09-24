@@ -1,21 +1,24 @@
 import { configureStore } from "@reduxjs/toolkit";
 import { TypedUseSelectorHook, useDispatch, useSelector } from "react-redux";
-import { measuresSlice } from "./Measures/slice.ts";
-import { acSlice } from "./Ac/slice.ts";
-import { pingDegradingMiddleware } from "./Ac/middleware.ts";
-import { createMeasureDegradeMiddlewareForKind } from "./Measures/middleware.ts";
+import { measureSlice } from "./Measures/slice.ts";
+import { deviceSlice } from "./Device/slice.ts";
+import { createDeviceDegradeMiddleware } from "./Device/middleware.ts";
+import { createMeasureDegradeMiddleware } from "./Measures/middleware.ts";
+import { MeasureKind } from "./Measures/types.ts";
+import { DeviceKind } from "./Device/types.ts";
 
 export const store = configureStore({
     reducer: {
-        measures: measuresSlice.reducer,
-        ac: acSlice.reducer,
+        measure: measureSlice.reducer,
+        device: deviceSlice.reducer,
     },
     middleware: (getDefaultMiddleware) => {
         return getDefaultMiddleware().concat(
-            pingDegradingMiddleware,
-            createMeasureDegradeMiddlewareForKind(0x20, 180),
-            createMeasureDegradeMiddlewareForKind(0x21),
-            createMeasureDegradeMiddlewareForKind(0x41),
+            createDeviceDegradeMiddleware(DeviceKind.COOLING),
+            createDeviceDegradeMiddleware(DeviceKind.HEATING),
+            createMeasureDegradeMiddleware(MeasureKind.LIVING_ROOM, 180),
+            createMeasureDegradeMiddleware(MeasureKind.BEDROOM),
+            createMeasureDegradeMiddleware(MeasureKind.OUTDOOR),
         )
     },
     devTools: import.meta.env.DEV,

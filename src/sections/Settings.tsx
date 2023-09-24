@@ -1,4 +1,4 @@
-import { Dialog, FormControlLabel, FormGroup, IconButton, Switch } from "@mui/material";
+import { Dialog, FormControlLabel, IconButton, Switch } from "@mui/material";
 import Grid from "@mui/material/Unstable_Grid2";
 import SettingsIcon from "@mui/icons-material/Settings";
 import DayIcon from "@mui/icons-material/LightMode";
@@ -13,7 +13,13 @@ import temperatureMarks, { MAX_TEMP, MIN_TEMP, MIN_TEMP_DISTANCE } from "./Setti
 import { toLocaleUnit } from "../utils/toLocaleUnit.ts";
 import TemperatureSlider from "./Settings/TemperatureSlider.tsx";
 import { CoolingIcon, HeatingIcon } from "../layout/Icons.ts";
-import { Room } from "../store/Measures/types.ts";
+import { MeasureKind } from "../store/Measures/types.ts";
+import { DeviceKind, DeviceStatus, OperatingMode } from "../store/Device/types.ts";
+
+const DAY_HOURS = "06:00 - 22:59";
+const NIGHT_HOURS = "23:00 - 05:59";
+
+type ControllingStatus = DeviceStatus["controlledBy"];
 
 const SettingsButton = styled(IconButton)`
     position: absolute;
@@ -23,16 +29,23 @@ const SettingsButton = styled(IconButton)`
 `;
 
 const createRoomsHandler =
-    (rooms: Room[], room: Room, setState: Dispatch<SetStateAction<Room[]>>) =>
+    (
+        status: ControllingStatus,
+        measure: MeasureKind,
+        mode: OperatingMode,
+        setState: Dispatch<SetStateAction<ControllingStatus>>,
+    ) =>
     (_event: ChangeEvent<HTMLInputElement>, checked: boolean) => {
-        if (checked && !rooms.includes(room)) {
-            setState([...rooms, room]);
+        if (checked && !status[mode].includes(measure)) {
+            const measureKinds = status[mode].slice();
+            measureKinds.push(measure);
+            setState({ ...status, [mode]: measureKinds });
         }
 
-        if (!checked && rooms.includes(room)) {
-            const newRooms = rooms.slice();
-            newRooms.splice(rooms.indexOf(room), 1);
-            setState(newRooms);
+        if (!checked && status[mode].includes(measure)) {
+            const measureKinds = status[mode].slice();
+            measureKinds.splice(status[mode].indexOf(measure), 1);
+            setState({ ...status, [mode]: measureKinds });
         }
     };
 
@@ -61,8 +74,8 @@ function Settings() {
     const handleOpen = useCallback(() => setIsOpened(true), []);
     const handleClose = useCallback(() => setIsOpened(false), []);
 
-    const defaultCoolingTemp = useAppSelector((state) => state.ac.cooling.targetTemperature);
-    const defaultHeatingTemp = useAppSelector((state) => state.ac.heating.targetTemperature);
+    const defaultCoolingTemp = useAppSelector((state) => state.device.status[DeviceKind.COOLING].targetTemperature);
+    const defaultHeatingTemp = useAppSelector((state) => state.device.status[DeviceKind.HEATING].targetTemperature);
     const [dayTemp, setDayTemp] = useState([defaultHeatingTemp.day, defaultCoolingTemp.day]);
     const [nightTemp, setNightTemp] = useState([defaultHeatingTemp.night, defaultCoolingTemp.night]);
     useEffect(
@@ -74,8 +87,8 @@ function Settings() {
         [defaultCoolingTemp, defaultHeatingTemp],
     );
 
-    const defaultCoolingRooms = useAppSelector((state) => state.ac.cooling.managedRooms);
-    const defaultHeatingRooms = useAppSelector((state) => state.ac.heating.managedRooms);
+    const defaultCoolingRooms = useAppSelector((state) => state.device.status[DeviceKind.COOLING].controlledBy);
+    const defaultHeatingRooms = useAppSelector((state) => state.device.status[DeviceKind.HEATING].controlledBy);
     const [coolingRooms, setCoolingRooms] = useState(defaultCoolingRooms);
     const [heatingRooms, setHeatingRooms] = useState(defaultHeatingRooms);
     useEffect(() => setCoolingRooms(defaultCoolingRooms), [defaultCoolingRooms]);
@@ -89,69 +102,124 @@ function Settings() {
             <Dialog open={isOpened} fullScreen={true} onClose={handleClose} TransitionComponent={SlideTransition}>
                 <Toolbar onClose={handleClose} onSave={handleClose} />
                 <Section>
-                    <Grid container component={FormGroup}>
-                        <Grid xs={3} sx={{ display: "flex", alignItems: "center", gap: "0.5em" }}>
-                            <CoolingIcon /> Chłodzenie
+                    <Grid container>
+                        <Grid xs={3}>
+                            <div style={{ display: "flex", alignItems: "center", gap: "0.5em", paddingTop: "0.4em" }}>
+                                <CoolingIcon /> Chłodzenie
+                            </div>
                         </Grid>
-                        <Grid xs={2}>
+                        <Grid xs={4}>
                             <FormControlLabel
                                 control={
                                     <Switch
-                                        checked={coolingRooms.includes(Room.LIVING_ROOM)}
+                                        checked={coolingRooms.day.includes(MeasureKind.LIVING_ROOM)}
                                         onChange={useMemo(
                                             () =>
                                                 createRoomsHandler(
                                                     coolingRooms,
-                                                    Room.LIVING_ROOM,
+                                                    MeasureKind.LIVING_ROOM,
+                                                    OperatingMode.DAY,
                                                     setCoolingRooms,
                                                 ),
                                             [coolingRooms, setCoolingRooms],
                                         )}
                                     />
                                 }
-                                label="Salon"
+                                label={`Salon (${DAY_HOURS})`}
+                            />
+                        </Grid>
+                        <Grid xs={4}>
+                            <FormControlLabel
+                                control={
+                                    <Switch
+                                        checked={coolingRooms.night.includes(MeasureKind.LIVING_ROOM)}
+                                        onChange={useMemo(
+                                            () =>
+                                                createRoomsHandler(
+                                                    coolingRooms,
+                                                    MeasureKind.LIVING_ROOM,
+                                                    OperatingMode.NIGHT,
+                                                    setCoolingRooms,
+                                                ),
+                                            [coolingRooms, setCoolingRooms],
+                                        )}
+                                    />
+                                }
+                                label={`Salon (${NIGHT_HOURS})`}
                             />
                         </Grid>
                     </Grid>
-                    <Grid container component={FormGroup}>
-                        <Grid xs={3} sx={{ display: "flex", alignItems: "center", gap: "0.5em" }}>
-                            <HeatingIcon /> Ogrzewanie
+                    <Grid container>
+                        <Grid xs={3}>
+                            <div style={{ display: "flex", alignItems: "center", gap: "0.5em", paddingTop: "0.4em" }}>
+                                <HeatingIcon /> Ogrzewanie
+                            </div>
                         </Grid>
-                        <Grid xs={2}>
+                        <Grid xs={4}>
                             <FormControlLabel
                                 control={
                                     <Switch
-                                        checked={heatingRooms.includes(Room.LIVING_ROOM)}
+                                        checked={heatingRooms.day.includes(MeasureKind.LIVING_ROOM)}
                                         onChange={createRoomsHandler(
                                             heatingRooms,
-                                            Room.LIVING_ROOM,
+                                            MeasureKind.LIVING_ROOM,
+                                            OperatingMode.DAY,
                                             setHeatingRooms,
                                         )}
                                     />
                                 }
-                                label="Salon"
+                                label={`Salon (${DAY_HOURS})`}
+                            />
+                            <FormControlLabel
+                                control={
+                                    <Switch
+                                        checked={heatingRooms.day.includes(MeasureKind.BEDROOM)}
+                                        onChange={createRoomsHandler(
+                                            heatingRooms,
+                                            MeasureKind.BEDROOM,
+                                            OperatingMode.DAY,
+                                            setHeatingRooms,
+                                        )}
+                                    />
+                                }
+                                label={`Sypialnia (${DAY_HOURS})`}
                             />
                         </Grid>
-                        <Grid xs={2}>
+                        <Grid xs={4}>
                             <FormControlLabel
                                 control={
                                     <Switch
-                                        checked={heatingRooms.includes(Room.BEDROOM)}
+                                        checked={heatingRooms.night.includes(MeasureKind.LIVING_ROOM)}
                                         onChange={createRoomsHandler(
                                             heatingRooms,
-                                            Room.BEDROOM,
+                                            MeasureKind.LIVING_ROOM,
+                                            OperatingMode.NIGHT,
                                             setHeatingRooms,
                                         )}
                                     />
                                 }
-                                label="Sypialnia"
+                                label={`Salon (${NIGHT_HOURS})`}
+                            />
+                            <FormControlLabel
+                                control={
+                                    <Switch
+                                        checked={heatingRooms.night.includes(MeasureKind.BEDROOM)}
+                                        onChange={createRoomsHandler(
+                                            heatingRooms,
+                                            MeasureKind.BEDROOM,
+                                            OperatingMode.NIGHT,
+                                            setHeatingRooms,
+                                        )}
+                                    />
+                                }
+                                label={`Sypialnia (${NIGHT_HOURS})`}
                             />
                         </Grid>
                     </Grid>
                 </Section>
                 <SectionHeader>
                     <DayIcon />
-                    <SectionHeader.Text>W dzień (07:00 - 22:59)</SectionHeader.Text>
+                    <SectionHeader.Text>W dzień ({DAY_HOURS})</SectionHeader.Text>
                     <HeatingIcon /> {toLocaleUnit(dayTemp[0], "°C")}
                     <CoolingIcon /> {toLocaleUnit(dayTemp[1], "°C")}
                 </SectionHeader>
@@ -164,7 +232,7 @@ function Settings() {
                 </Section>
                 <SectionHeader>
                     <NightIcon />
-                    <SectionHeader.Text>W nocy (23:00 - 06:59)</SectionHeader.Text>
+                    <SectionHeader.Text>W nocy ({NIGHT_HOURS})</SectionHeader.Text>
                     <HeatingIcon /> {toLocaleUnit(nightTemp[0], "°C")}
                     <CoolingIcon /> {toLocaleUnit(nightTemp[1], "°C")}
                 </SectionHeader>

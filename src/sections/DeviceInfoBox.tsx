@@ -11,7 +11,7 @@ import {
     HeatingIcon,
     CoolingIcon,
 } from "../layout/Icons.ts";
-import { DeviceState } from "../store/Ac/types.ts";
+import { DeviceKind, DeviceStatus } from "../store/Device/types.ts";
 
 const InfoBox = styled.div`
     position: absolute;
@@ -24,7 +24,8 @@ const Container = styled.div`
     flex-flow: row wrap;
     align-items: center;
     justify-content: flex-end;
-    margin-bottom: 0.2em;
+    margin-bottom: 0.5em;
+    position: relative;
 `;
 
 const TargetTemperature = styled.div`
@@ -32,33 +33,32 @@ const TargetTemperature = styled.div`
     margin: 0 0.2em;
 `;
 
+const DegradedDevice = styled(Degraded)`
+    top: calc(100% - 0.2em);
+    font-size: min(1.7vh, 1.7vw);
+`;
+
 interface DeviceInfoProps {
-    status: DeviceState;
+    status: DeviceStatus;
     deviceIcon: ReactNode;
     deviceEnabledIcon: ReactNode;
     powerOnIcon: ReactNode;
 }
 
 function DeviceInfo({ status, deviceIcon, deviceEnabledIcon, powerOnIcon }: DeviceInfoProps) {
-    const mode = useAppSelector((state) => state.ac.mode);
+    const mode = useAppSelector((state) => state.device.mode);
 
-    if (status.managedRooms.length === 0) {
+    if (status.controlledBy[mode].length === 0) {
         return null;
     }
 
     return (
-        <>
-            <Container style={{ color: status.isDegraded ? "#222" : "#aaa" }}>
-                {status.isWorking && powerOnIcon}
-                {status.isWorking ? deviceEnabledIcon : deviceIcon}
-                <TargetTemperature>{toLocaleUnit(status.targetTemperature[mode], "°C")}</TargetTemperature>
-            </Container>
-            {status.isDegraded && (
-                <Container>
-                    <Degraded since={status.lastPingTimestamp} />
-                </Container>
-            )}
-        </>
+        <Container style={{ color: status.isDegraded ? "#222" : "#aaa" }}>
+            {status.isWorking && powerOnIcon}
+            {status.isWorking ? deviceEnabledIcon : deviceIcon}
+            <TargetTemperature>{toLocaleUnit(status.targetTemperature[mode], "°C")}</TargetTemperature>
+            {status.isDegraded && <DegradedDevice since={status.lastPingTimestamp} />}
+        </Container>
     );
 }
 
@@ -70,13 +70,13 @@ export function DeviceInfoBox() {
     return (
         <InfoBox>
             <DeviceInfo
-                status={useAppSelector((state) => state.ac.cooling)}
+                status={useAppSelector((state) => state.device.status[DeviceKind.COOLING])}
                 deviceIcon={<CoolingIconMono sx={coolingIconStyle} />}
                 deviceEnabledIcon={<CoolingIcon sx={coolingIconStyle} />}
                 powerOnIcon={<CoolingPoweredOnIcon sx={powerIconStyle} />}
             />
             <DeviceInfo
-                status={useAppSelector((state) => state.ac.heating)}
+                status={useAppSelector((state) => state.device.status[DeviceKind.HEATING])}
                 deviceIcon={<HeatingIconMono sx={heatingIconStyle} />}
                 deviceEnabledIcon={<HeatingIcon sx={heatingIconStyle} />}
                 powerOnIcon={<HeatingPoweredOnIcon sx={powerIconStyle} />}

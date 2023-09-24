@@ -1,21 +1,21 @@
-import { AnyAction, Middleware, PayloadAction } from "@reduxjs/toolkit";
+import { AnyAction, Middleware } from "@reduxjs/toolkit";
 import { addSeconds, differenceInMilliseconds, parseISO } from "date-fns";
-import { updateTemperature, degradeMeasure } from "./slice.ts";
-import { MeasureKind, TemperatureUpdatePayload } from "./types.ts";
+import { degradeDevice, registerDevicePing } from "./slice.ts";
+import { DeviceKind } from "./types.ts";
 
-export const MAX_TEMPERATURE_AGE_SECONDS = 1500;
+export const MAX_PING_AGE_SECONDS = 180;
 
-function isTemperatureAction(action: AnyAction): action is PayloadAction<TemperatureUpdatePayload> {
-    return action.type === updateTemperature.type;
+function isPingAction(action: AnyAction): action is ReturnType<typeof registerDevicePing> {
+    return action.type === registerDevicePing.type;
 }
 
-export const createMeasureDegradeMiddleware = (
-    kind: MeasureKind,
-    maxAge = MAX_TEMPERATURE_AGE_SECONDS,
+export const createDeviceDegradeMiddleware = (
+    kind: DeviceKind,
+    maxAge = MAX_PING_AGE_SECONDS,
 ): Middleware => {
     let timeout: NodeJS.Timeout | null = null;
     return (store) => (next) => (action: AnyAction) => {
-        if (isTemperatureAction(action) && action.payload.kind === kind) {
+        if (isPingAction(action) && action.payload.kind === kind) {
             if (timeout !== null) {
                 clearTimeout(timeout);
                 timeout = null;
@@ -27,7 +27,7 @@ export const createMeasureDegradeMiddleware = (
             if (degradeTimestamp >= now) {
                 timeout = setTimeout(
                     () => {
-                        store.dispatch(degradeMeasure(kind));
+                        store.dispatch(degradeDevice(kind));
                     },
                     differenceInMilliseconds(degradeTimestamp, now),
                 );
@@ -36,4 +36,4 @@ export const createMeasureDegradeMiddleware = (
 
         return next(action) as unknown;
     };
-};
+}

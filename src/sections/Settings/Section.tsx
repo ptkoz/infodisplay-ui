@@ -3,7 +3,7 @@ import styled from "@emotion/styled";
 
 const SectionDiv = styled.div`
     padding: 0;
-    margin: 0.5em 1em;
+    margin: 0.2em 1em;
 `;
 
 const HeaderDiv = styled(SectionDiv)`

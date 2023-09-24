@@ -5,6 +5,7 @@ import { toLocaleFixed } from "../utils/toLocaleFixed.ts";
 import { useAppSelector } from "../store/store.ts";
 import { toLocaleUnit } from "../utils/toLocaleUnit.ts";
 import Degraded from "../layout/Degraded.tsx";
+import { MeasureKind } from "../store/Measures/types.ts";
 
 const BedroomBox = styled(Box)`
     grid-column: 2 / span 1;
@@ -24,18 +25,15 @@ const Humidity = styled.span`
 `;
 
 function Bedroom() {
-    const temperature = useAppSelector((state) => state.measures.bedroom.temperature);
-    const humidity = useAppSelector((state) => state.measures.bedroom.humidity);
-    const isDegraded = useAppSelector((state) => state.measures.bedroom.isDegraded);
-    const lastUpdate = useAppSelector((state) => state.measures.bedroom.lastTemperatureUpdate);
+    const status = useAppSelector((state) => state.measure[MeasureKind.BEDROOM]);
 
     return (
         <BedroomBox>
             <Label>Sypialnia</Label>
-            <Value isDegraded={isDegraded}>
-                {toLocaleUnit(temperature, "°C")}
-                <Humidity>{toLocaleFixed(humidity)}%</Humidity>
-                {isDegraded && <Degraded since={lastUpdate} />}
+            <Value isDegraded={status.isDegraded}>
+                {toLocaleUnit(status.temperature, "°C")}
+                <Humidity>{toLocaleFixed(status.humidity)}%</Humidity>
+                {status.isDegraded && <Degraded since={status.lastTemperatureUpdate} />}
             </Value>
         </BedroomBox>
     );

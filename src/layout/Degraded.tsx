@@ -14,9 +14,10 @@ const Text = styled.div`
 
 export interface DegradedProps {
     since: string; // ISO timestamp
+    className?: string;
 }
 
-export function Degraded({ since }: DegradedProps) {
+export function Degraded({ since, ...props }: DegradedProps) {
     const [ message, setMessage ] = useState<string>(
         () => formatDistance(parseISO(since), new Date(), { addSuffix: true })
     );
@@ -33,7 +34,7 @@ export function Degraded({ since }: DegradedProps) {
         };
     }, [since, setMessage]);
 
-    return <Text>{message}</Text>
+    return <Text {...props}>{message}</Text>
 }
 
 export default Degraded;

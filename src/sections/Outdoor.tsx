@@ -9,6 +9,7 @@ import { toLocaleUnit } from "../utils/toLocaleUnit.ts";
 import { addHours, addSeconds, differenceInMilliseconds, min } from "date-fns";
 import runBackgroundTask from "../utils/runBackgroundTask.ts";
 import Degraded from "../layout/Degraded.tsx";
+import { MeasureKind } from "../store/Measures/types.ts";
 
 const OutdoorBox = styled(Box)`
     grid-column: 1 / span 2;
@@ -18,7 +19,7 @@ const OutdoorBox = styled(Box)`
 const Value = styled.div`
     position: relative;
     font-size: min(20vh, 12vw);
-    color: ${(props: { isDegraded: boolean }) => props.isDegraded ? "#222" : "#fff"};
+    color: ${(props: { isDegraded: boolean }) => (props.isDegraded ? "#222" : "#fff")};
 `;
 
 const Humidity = styled.span`
@@ -40,10 +41,8 @@ const Weather = styled.div`
 `;
 
 function Bedroom() {
-    const temperature = useAppSelector((state) => state.measures.outdoor.temperature);
+    const status = useAppSelector((state) => state.measure[MeasureKind.OUTDOOR]);
     const [weather, setWeather] = useState<CurrentWeather>({ code: "01d", desc: "słonecznie" });
-    const isDegraded = useAppSelector((state) => state.measures.outdoor.isDegraded);
-    const lastUpdate = useAppSelector((state) => state.measures.outdoor.lastTemperatureUpdate);
 
     useEffect(() => {
         let refreshTimeout: NodeJS.Timer | null = null;
@@ -51,7 +50,7 @@ function Bedroom() {
         const refreshWeather = () => {
             runBackgroundTask(async () => {
                 setWeather(await getCurrentWeather());
-            })
+            });
 
             // Run 10 seconds after at next full hour or 10 seconds after sunrise or sunset
             const now = new Date();
@@ -79,10 +78,10 @@ function Bedroom() {
                 <img src={`/assets/${weather.code}.svg`} alt={weather.desc} />
                 {weather.desc}
             </Weather>
-            <Value isDegraded={isDegraded}>
-                {toLocaleUnit(temperature, "°C")}
+            <Value isDegraded={status.isDegraded}>
+                {toLocaleUnit(status.temperature, "°C")}
                 <Humidity>{toLocaleFixed(weather.humidity)}%</Humidity>
-                {isDegraded && <Degraded since={lastUpdate} />}
+                {status.isDegraded && <Degraded since={status.lastTemperatureUpdate} />}
             </Value>
         </OutdoorBox>
     );
