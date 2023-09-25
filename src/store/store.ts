@@ -6,6 +6,7 @@ import { createDeviceDegradeMiddleware } from "./Device/middleware.ts";
 import { createMeasureDegradeMiddleware } from "./Measures/middleware.ts";
 import { MeasureKind } from "./Measures/types.ts";
 import { DeviceKind } from "./Device/types.ts";
+import { maintainOperatingMode } from "./OperatingMode.ts";
 
 export const store = configureStore({
     reducer: {
@@ -23,6 +24,8 @@ export const store = configureStore({
     },
     devTools: import.meta.env.DEV,
 });
+
+maintainOperatingMode(store.dispatch);
 
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;

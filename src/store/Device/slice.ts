@@ -72,8 +72,12 @@ export const deviceSlice = createSlice({
         updateDeviceControl: (state, action: PayloadAction<UpdateDeviceControlPayload>) => {
             state.status[action.payload.deviceKind].controlledBy = action.payload.controlledBy;
         },
+        setOperatingMode: (state, action: PayloadAction<OperatingMode>) => {
+            state.mode = action.payload
+        }
     },
 });
 
 export const registerDevicePing = deviceSlice.actions.ping;
 export const degradeDevice = deviceSlice.actions.degrade;
+export const setOperatingMode = deviceSlice.actions.setOperatingMode;
