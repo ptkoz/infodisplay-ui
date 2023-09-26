@@ -3,11 +3,9 @@ import LivingRoom from "../sections/LivingRoom.tsx";
 import styled from "@emotion/styled";
 import Bedroom from "../sections/Bedroom.tsx";
 import Outdoor from "../sections/Outdoor.tsx";
-import { useEffect } from "react";
 import { store } from "../store/store.ts";
 import { Provider } from "react-redux";
 import Forecast from "../sections/Forecast.tsx";
-import { isString } from "../utils/typeGuards.ts";
 import { createTheme, ThemeProvider } from "@mui/material";
 import Settings from "../sections/Settings.tsx";
 
@@ -30,51 +28,6 @@ const darkTheme = createTheme({
 });
 
 function App() {
-    useEffect(() => {
-        let socket: WebSocket | null = null;
-        let reconnectTimeoutIntervalSeconds = 1;
-        let reconnectTimeout: NodeJS.Timer | null = null;
-
-        const clearReconnectTimeout = () => {
-            reconnectTimeoutIntervalSeconds = 1;
-            if (reconnectTimeout !== null) {
-                clearTimeout(reconnectTimeout);
-                reconnectTimeout = null;
-            }
-        };
-
-        const reconnectOnClose = () => {
-            socket = null;
-            console.warn(`Connection dropped, reconnecting in ${reconnectTimeoutIntervalSeconds}s...`);
-            reconnectTimeout = setTimeout(connect, reconnectTimeoutIntervalSeconds * 1000);
-            reconnectTimeoutIntervalSeconds = Math.min(reconnectTimeoutIntervalSeconds * 2, 15);
-        };
-
-        const dispatchMessage = (message: MessageEvent) => {
-            if (isString(message.data)) {
-                store.dispatch(JSON.parse(message.data));
-            }
-        };
-
-        const connect = () => {
-            socket = new WebSocket("wss://infodisplay.wro.tuxlan.es:44310");
-
-            socket.addEventListener("open", clearReconnectTimeout);
-            socket.addEventListener("message", dispatchMessage);
-            socket.addEventListener("close", reconnectOnClose);
-        };
-
-        connect();
-
-        return () => {
-            clearReconnectTimeout();
-            if (socket) {
-                socket.removeEventListener("close", reconnectOnClose);
-                socket.close();
-            }
-        };
-    }, []);
-
     return (
         <ThemeProvider theme={darkTheme}>
             <Provider store={store}>

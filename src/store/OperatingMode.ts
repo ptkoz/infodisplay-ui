@@ -1,7 +1,7 @@
-import { OperatingMode } from "./Device/types.ts";
-import { setOperatingMode } from "./Device/slice.ts";
+import { OperatingMode } from "./Device/types";
+import { setOperatingMode } from "./Device/slice";
 import { addHours, differenceInMilliseconds } from "date-fns";
-import { AppDispatch } from "./store.ts";
+import { AppDispatch } from "./store";
 
 function determineOperatingMode(forDate: Date) {
     if (6 <= forDate.getHours() && forDate.getHours() < 23) {
