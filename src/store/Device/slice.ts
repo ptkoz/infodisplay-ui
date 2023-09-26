@@ -67,7 +67,7 @@ export const deviceSlice = createSlice({
             state.status[action.payload.kind].isWorking = action.payload.isWorking;
         },
         updateTargetTemperature: (state, action: PayloadAction<UpdateTargetTemperaturePayload>) => {
-            state.status[action.payload.deviceKind].targetTemperature[action.payload.mode] = action.payload.temperature;
+            state.status[action.payload.kind].targetTemperature[action.payload.mode] = action.payload.temperature;
         },
         updateDeviceControl: (state, action: PayloadAction<UpdateDeviceControlPayload>) => {
             state.status[action.payload.deviceKind].controlledBy = action.payload.controlledBy;

@@ -1,6 +1,6 @@
 import { toLocaleUnit } from "../../utils/toLocaleUnit.ts";
 
-export const MIN_TEMP = 18;
+export const MIN_TEMP = 17;
 export const MAX_TEMP = 26;
 export const MIN_TEMP_DISTANCE = 1.2;
 

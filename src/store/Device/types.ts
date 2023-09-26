@@ -33,7 +33,7 @@ export interface UpdateStatusPayload {
 }
 
 export interface UpdateTargetTemperaturePayload {
-    deviceKind: DeviceKind; // for which device this target temperature applies
+    kind: DeviceKind; // for which device this target temperature applies
     mode: OperatingMode; // for which operating mode this target temperature applies
     temperature: number; // the temperature
 }
