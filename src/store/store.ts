@@ -7,7 +7,7 @@ import { createMeasureDegradeMiddleware } from "./Measures/middleware";
 import { MeasureKind } from "./Measures/types";
 import { DeviceKind } from "./Device/types";
 import { maintainOperatingMode } from "./OperatingMode";
-import { maintainBackendCommunication } from "./BackendDispatcher.ts";
+import { maintainBackendCommunication } from "./BackendSynchronization.ts";
 
 export const store = configureStore({
     reducer: {

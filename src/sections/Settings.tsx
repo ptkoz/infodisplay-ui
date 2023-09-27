@@ -15,6 +15,7 @@ import TemperatureSlider from "./Settings/TemperatureSlider.tsx";
 import { CoolingIcon, HeatingIcon } from "../layout/Icons.ts";
 import { MeasureKind } from "../store/Measures/types.ts";
 import { DeviceKind, DeviceStatus, OperatingMode } from "../store/Device/types.ts";
+import { sendToBackend } from "../store/BackendSynchronization.ts";
 
 const DAY_HOURS = "06:00 - 22:59";
 const NIGHT_HOURS = "23:00 - 05:59";
@@ -28,44 +29,61 @@ const SettingsButton = styled(IconButton)`
     color: #333;
 `;
 
-const createRoomsHandler =
+const createMeasureHandler =
     (
-        status: ControllingStatus,
+        status: Record<string, ControllingStatus>,
+        device: DeviceKind,
         measure: MeasureKind,
         mode: OperatingMode,
-        setState: Dispatch<SetStateAction<ControllingStatus>>,
+        setState: Dispatch<SetStateAction<Record<string, ControllingStatus>>>,
     ) =>
     (_event: ChangeEvent<HTMLInputElement>, checked: boolean) => {
-        if (checked && !status[mode].includes(measure)) {
-            const measureKinds = status[mode].slice();
+        if (checked && !status[device][mode].includes(measure)) {
+            const measureKinds = status[device][mode].slice();
             measureKinds.push(measure);
-            setState({ ...status, [mode]: measureKinds });
+            setState({ ...status, [device]: { ...status[device], [mode]: measureKinds } });
         }
 
-        if (!checked && status[mode].includes(measure)) {
-            const measureKinds = status[mode].slice();
-            measureKinds.splice(status[mode].indexOf(measure), 1);
-            setState({ ...status, [mode]: measureKinds });
+        if (!checked && status[device][mode].includes(measure)) {
+            const measureKinds = status[device][mode].slice();
+            measureKinds.splice(status[device][mode].indexOf(measure), 1);
+            setState({ ...status, [device]: { ...status[device], [mode]: measureKinds } });
         }
     };
 
 const createTempHandler =
-    (setState: Dispatch<SetStateAction<number[]>>) =>
+    (
+        status: Record<string, { [key in OperatingMode]: number }>,
+        mode: OperatingMode,
+        setState: Dispatch<SetStateAction<Record<string, { [key in OperatingMode]: number }>>>,
+    ) =>
     (_event: Event, value: number | number[], activeThumb: number) => {
         if (!Array.isArray(value)) {
             return;
         }
 
+        const mapToState = (heating: number, cooling: number) => ({
+            ...status,
+            [DeviceKind.HEATING]: {
+                ...status[DeviceKind.HEATING],
+                [mode]: heating,
+            },
+            [DeviceKind.COOLING]: {
+                ...status[DeviceKind.COOLING],
+                [mode]: cooling,
+            },
+        });
+
         if (value[1] - value[0] < MIN_TEMP_DISTANCE) {
             if (activeThumb === 0) {
                 const clamped = Math.min(value[0], MAX_TEMP - MIN_TEMP_DISTANCE);
-                setState([clamped, clamped + MIN_TEMP_DISTANCE]);
+                setState(mapToState(clamped, clamped + MIN_TEMP_DISTANCE));
             } else {
                 const clamped = Math.max(value[1], MIN_TEMP + MIN_TEMP_DISTANCE);
-                setState([clamped - MIN_TEMP_DISTANCE, clamped]);
+                setState(mapToState(clamped - MIN_TEMP_DISTANCE, clamped));
             }
         } else {
-            setState(value);
+            setState(mapToState(value[0], value[1]));
         }
     };
 
@@ -74,25 +92,36 @@ function Settings() {
     const handleOpen = useCallback(() => setIsOpened(true), []);
     const handleClose = useCallback(() => setIsOpened(false), []);
 
-    const defaultCoolingTemp = useAppSelector((state) => state.device.status[DeviceKind.COOLING].targetTemperature);
-    const defaultHeatingTemp = useAppSelector((state) => state.device.status[DeviceKind.HEATING].targetTemperature);
-    const [dayTemp, setDayTemp] = useState([defaultHeatingTemp.day, defaultCoolingTemp.day]);
-    const [nightTemp, setNightTemp] = useState([defaultHeatingTemp.night, defaultCoolingTemp.night]);
-    useEffect(
-        () => setDayTemp([defaultHeatingTemp.day, defaultCoolingTemp.day]),
-        [defaultCoolingTemp, defaultHeatingTemp],
+    const devicesStatus = useAppSelector((state) => state.device.status);
+
+    const defaultTargetTemp = useMemo(
+        () =>
+            Object.fromEntries(Object.entries(devicesStatus).map(([kind, status]) => [kind, status.targetTemperature])),
+        [devicesStatus],
     );
-    useEffect(
-        () => setNightTemp([defaultHeatingTemp.night, defaultCoolingTemp.night]),
-        [defaultCoolingTemp, defaultHeatingTemp],
+    const defaultControlMeasures = useMemo(
+        () => Object.fromEntries(Object.entries(devicesStatus).map(([kind, status]) => [kind, status.controlledBy])),
+        [devicesStatus],
     );
 
-    const defaultCoolingRooms = useAppSelector((state) => state.device.status[DeviceKind.COOLING].controlledBy);
-    const defaultHeatingRooms = useAppSelector((state) => state.device.status[DeviceKind.HEATING].controlledBy);
-    const [coolingRooms, setCoolingRooms] = useState(defaultCoolingRooms);
-    const [heatingRooms, setHeatingRooms] = useState(defaultHeatingRooms);
-    useEffect(() => setCoolingRooms(defaultCoolingRooms), [defaultCoolingRooms]);
-    useEffect(() => setHeatingRooms(defaultHeatingRooms), [defaultHeatingRooms]);
+    const [targetTemp, setTargetTemp] = useState(defaultTargetTemp);
+    const [controlMeasures, setControlMeasures] = useState(defaultControlMeasures);
+
+    useEffect(() => setTargetTemp(defaultTargetTemp), [defaultTargetTemp, isOpened]);
+    useEffect(() => setControlMeasures(defaultControlMeasures), [defaultControlMeasures, isOpened]);
+
+    const handleSave = () => {
+        try {
+            sendToBackend({
+                targetTemperature: targetTemp,
+                controlMeasures: controlMeasures,
+            });
+            handleClose();
+        } catch {
+            alert('Saving failed!')
+        }
+
+    };
 
     return (
         <>
@@ -100,7 +129,7 @@ function Settings() {
                 <SettingsIcon />
             </SettingsButton>
             <Dialog open={isOpened} fullScreen={true} onClose={handleClose} TransitionComponent={SlideTransition}>
-                <Toolbar onClose={handleClose} onSave={handleClose} />
+                <Toolbar onClose={handleClose} onSave={handleSave} />
                 <Section>
                     <Grid container>
                         <Grid xs={3}>
@@ -112,16 +141,15 @@ function Settings() {
                             <FormControlLabel
                                 control={
                                     <Switch
-                                        checked={coolingRooms.day.includes(MeasureKind.LIVING_ROOM)}
-                                        onChange={useMemo(
-                                            () =>
-                                                createRoomsHandler(
-                                                    coolingRooms,
-                                                    MeasureKind.LIVING_ROOM,
-                                                    OperatingMode.DAY,
-                                                    setCoolingRooms,
-                                                ),
-                                            [coolingRooms, setCoolingRooms],
+                                        checked={controlMeasures[DeviceKind.COOLING].day.includes(
+                                            MeasureKind.LIVING_ROOM,
+                                        )}
+                                        onChange={createMeasureHandler(
+                                            controlMeasures,
+                                            DeviceKind.COOLING,
+                                            MeasureKind.LIVING_ROOM,
+                                            OperatingMode.DAY,
+                                            setControlMeasures,
                                         )}
                                     />
                                 }
@@ -132,16 +160,15 @@ function Settings() {
                             <FormControlLabel
                                 control={
                                     <Switch
-                                        checked={coolingRooms.night.includes(MeasureKind.LIVING_ROOM)}
-                                        onChange={useMemo(
-                                            () =>
-                                                createRoomsHandler(
-                                                    coolingRooms,
-                                                    MeasureKind.LIVING_ROOM,
-                                                    OperatingMode.NIGHT,
-                                                    setCoolingRooms,
-                                                ),
-                                            [coolingRooms, setCoolingRooms],
+                                        checked={controlMeasures[DeviceKind.COOLING].night.includes(
+                                            MeasureKind.LIVING_ROOM,
+                                        )}
+                                        onChange={createMeasureHandler(
+                                            controlMeasures,
+                                            DeviceKind.COOLING,
+                                            MeasureKind.LIVING_ROOM,
+                                            OperatingMode.NIGHT,
+                                            setControlMeasures,
                                         )}
                                     />
                                 }
@@ -159,12 +186,15 @@ function Settings() {
                             <FormControlLabel
                                 control={
                                     <Switch
-                                        checked={heatingRooms.day.includes(MeasureKind.LIVING_ROOM)}
-                                        onChange={createRoomsHandler(
-                                            heatingRooms,
+                                        checked={controlMeasures[DeviceKind.HEATING].day.includes(
+                                            MeasureKind.LIVING_ROOM,
+                                        )}
+                                        onChange={createMeasureHandler(
+                                            controlMeasures,
+                                            DeviceKind.HEATING,
                                             MeasureKind.LIVING_ROOM,
                                             OperatingMode.DAY,
-                                            setHeatingRooms,
+                                            setControlMeasures,
                                         )}
                                     />
                                 }
@@ -173,12 +203,13 @@ function Settings() {
                             <FormControlLabel
                                 control={
                                     <Switch
-                                        checked={heatingRooms.day.includes(MeasureKind.BEDROOM)}
-                                        onChange={createRoomsHandler(
-                                            heatingRooms,
+                                        checked={controlMeasures[DeviceKind.HEATING].day.includes(MeasureKind.BEDROOM)}
+                                        onChange={createMeasureHandler(
+                                            controlMeasures,
+                                            DeviceKind.HEATING,
                                             MeasureKind.BEDROOM,
                                             OperatingMode.DAY,
-                                            setHeatingRooms,
+                                            setControlMeasures,
                                         )}
                                     />
                                 }
@@ -189,12 +220,15 @@ function Settings() {
                             <FormControlLabel
                                 control={
                                     <Switch
-                                        checked={heatingRooms.night.includes(MeasureKind.LIVING_ROOM)}
-                                        onChange={createRoomsHandler(
-                                            heatingRooms,
+                                        checked={controlMeasures[DeviceKind.HEATING].night.includes(
+                                            MeasureKind.LIVING_ROOM,
+                                        )}
+                                        onChange={createMeasureHandler(
+                                            controlMeasures,
+                                            DeviceKind.HEATING,
                                             MeasureKind.LIVING_ROOM,
                                             OperatingMode.NIGHT,
-                                            setHeatingRooms,
+                                            setControlMeasures,
                                         )}
                                     />
                                 }
@@ -203,12 +237,15 @@ function Settings() {
                             <FormControlLabel
                                 control={
                                     <Switch
-                                        checked={heatingRooms.night.includes(MeasureKind.BEDROOM)}
-                                        onChange={createRoomsHandler(
-                                            heatingRooms,
+                                        checked={controlMeasures[DeviceKind.HEATING].night.includes(
+                                            MeasureKind.BEDROOM,
+                                        )}
+                                        onChange={createMeasureHandler(
+                                            controlMeasures,
+                                            DeviceKind.HEATING,
                                             MeasureKind.BEDROOM,
                                             OperatingMode.NIGHT,
-                                            setHeatingRooms,
+                                            setControlMeasures,
                                         )}
                                     />
                                 }
@@ -220,26 +257,26 @@ function Settings() {
                 <SectionHeader>
                     <DayIcon />
                     <SectionHeader.Text>W dzień ({DAY_HOURS})</SectionHeader.Text>
-                    <HeatingIcon /> {toLocaleUnit(dayTemp[0], "°C")}
-                    <CoolingIcon /> {toLocaleUnit(dayTemp[1], "°C")}
+                    <HeatingIcon /> {toLocaleUnit(targetTemp[DeviceKind.HEATING].day, "°C")}
+                    <CoolingIcon /> {toLocaleUnit(targetTemp[DeviceKind.COOLING].day, "°C")}
                 </SectionHeader>
                 <Section>
                     <TemperatureSlider
-                        value={dayTemp}
-                        onChange={createTempHandler(setDayTemp)}
+                        value={[targetTemp[DeviceKind.HEATING].day, targetTemp[DeviceKind.COOLING].day]}
+                        onChange={createTempHandler(targetTemp, OperatingMode.DAY, setTargetTemp)}
                         marks={temperatureMarks}
                     />
                 </Section>
                 <SectionHeader>
                     <NightIcon />
                     <SectionHeader.Text>W nocy ({NIGHT_HOURS})</SectionHeader.Text>
-                    <HeatingIcon /> {toLocaleUnit(nightTemp[0], "°C")}
-                    <CoolingIcon /> {toLocaleUnit(nightTemp[1], "°C")}
+                    <HeatingIcon /> {toLocaleUnit(targetTemp[DeviceKind.HEATING].night, "°C")}
+                    <CoolingIcon /> {toLocaleUnit(targetTemp[DeviceKind.COOLING].night, "°C")}
                 </SectionHeader>
                 <Section>
                     <TemperatureSlider
-                        value={nightTemp}
-                        onChange={createTempHandler(setNightTemp)}
+                        value={[targetTemp[DeviceKind.HEATING].night, targetTemp[DeviceKind.COOLING].night]}
+                        onChange={createTempHandler(targetTemp, OperatingMode.NIGHT, setTargetTemp)}
                         marks={temperatureMarks}
                     />
                 </Section>

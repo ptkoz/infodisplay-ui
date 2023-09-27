@@ -1,8 +1,13 @@
 import { isString } from "../utils/typeGuards";
 import { AppDispatch } from "./store";
 
+let socket: WebSocket | null = null;
+
+/**
+ * Starts and maintains websocket communication with info-display backend. Information received from
+ * backend are immediately dispatched as actions.
+ */
 export function maintainBackendCommunication(dispatch: AppDispatch) {
-    let socket: WebSocket | null = null;
     let reconnectTimeoutIntervalSeconds = 1;
     let reconnectTimeout: NodeJS.Timer | null = null;
 
@@ -36,4 +41,12 @@ export function maintainBackendCommunication(dispatch: AppDispatch) {
     };
 
     connect();
+}
+
+export function sendToBackend(data: unknown): void {
+    if (socket === null || socket.readyState !== WebSocket.OPEN) {
+        throw new Error('Not connected');
+    }
+
+    socket.send(JSON.stringify(data));
 }
