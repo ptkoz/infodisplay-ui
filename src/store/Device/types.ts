@@ -6,8 +6,8 @@ export enum OperatingMode {
 }
 
 export enum DeviceKind {
-    COOLING = 0x90,
-    HEATING = 0x91,
+    COOLING = 0x30,
+    HEATING = 0x31,
 }
 
 export interface DeviceStatus {
