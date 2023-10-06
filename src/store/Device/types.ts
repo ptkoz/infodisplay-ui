@@ -14,6 +14,9 @@ export interface DeviceStatus {
     lastPingTimestamp: string; // when did we receive the most recent ping
     isDegraded: boolean; // is the most recent ping older than 3 minutes
     isWorking: boolean; // is the device supposedly working
+}
+
+export interface DeviceSettings {
     targetTemperature: { // what is the target temperature set for this device
         [key in OperatingMode]: number;
     };

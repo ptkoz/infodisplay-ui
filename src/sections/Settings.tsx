@@ -14,13 +14,13 @@ import { toLocaleUnit } from "../utils/toLocaleUnit.ts";
 import TemperatureSlider from "./Settings/TemperatureSlider.tsx";
 import { CoolingIcon, HeatingIcon } from "../layout/Icons.ts";
 import { MeasureKind } from "../store/Measures/types.ts";
-import { DeviceKind, DeviceStatus, OperatingMode } from "../store/Device/types.ts";
+import { DeviceKind, DeviceSettings, OperatingMode } from "../store/Device/types.ts";
 import { sendToBackend } from "../store/BackendSynchronization.ts";
 
 const DAY_HOURS = "06:00 - 22:59";
 const NIGHT_HOURS = "23:00 - 05:59";
 
-type ControllingStatus = DeviceStatus["controlledBy"];
+type ControllingStatus = DeviceSettings["controlledBy"];
 
 const SettingsButton = styled(IconButton)`
     position: absolute;
@@ -92,16 +92,16 @@ function Settings() {
     const handleOpen = useCallback(() => setIsOpened(true), []);
     const handleClose = useCallback(() => setIsOpened(false), []);
 
-    const devicesStatus = useAppSelector((state) => state.device.status);
+    const devicesSettings = useAppSelector((state) => state.device.settings);
 
     const defaultTargetTemp = useMemo(
         () =>
-            Object.fromEntries(Object.entries(devicesStatus).map(([kind, status]) => [kind, status.targetTemperature])),
-        [devicesStatus],
+            Object.fromEntries(Object.entries(devicesSettings).map(([kind, settings]) => [kind, settings.targetTemperature])),
+        [devicesSettings],
     );
     const defaultControlMeasures = useMemo(
-        () => Object.fromEntries(Object.entries(devicesStatus).map(([kind, status]) => [kind, status.controlledBy])),
-        [devicesStatus],
+        () => Object.fromEntries(Object.entries(devicesSettings).map(([kind, settings]) => [kind, settings.controlledBy])),
+        [devicesSettings],
     );
 
     const [targetTemp, setTargetTemp] = useState(defaultTargetTemp);

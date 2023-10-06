@@ -11,7 +11,7 @@ import {
     HeatingIcon,
     CoolingIcon,
 } from "../layout/Icons.ts";
-import { DeviceKind, DeviceStatus } from "../store/Device/types.ts";
+import { DeviceKind, DeviceSettings, DeviceStatus } from "../store/Device/types.ts";
 
 const InfoBox = styled.div`
     position: absolute;
@@ -40,15 +40,16 @@ const DegradedDevice = styled(Degraded)`
 
 interface DeviceInfoProps {
     status: DeviceStatus;
+    settings: DeviceSettings;
     deviceIcon: ReactNode;
     deviceEnabledIcon: ReactNode;
     powerOnIcon: ReactNode;
 }
 
-function DeviceInfo({ status, deviceIcon, deviceEnabledIcon, powerOnIcon }: DeviceInfoProps) {
+function DeviceInfo({ status, settings, deviceIcon, deviceEnabledIcon, powerOnIcon }: DeviceInfoProps) {
     const mode = useAppSelector((state) => state.device.mode);
 
-    if (status.controlledBy[mode].length === 0) {
+    if (settings.controlledBy[mode].length === 0) {
         return null;
     }
 
@@ -56,7 +57,7 @@ function DeviceInfo({ status, deviceIcon, deviceEnabledIcon, powerOnIcon }: Devi
         <Container style={{ color: status.isDegraded ? "#222" : "#aaa" }}>
             {status.isWorking && powerOnIcon}
             {status.isWorking ? deviceEnabledIcon : deviceIcon}
-            <TargetTemperature>{toLocaleUnit(status.targetTemperature[mode], "°C")}</TargetTemperature>
+            <TargetTemperature>{toLocaleUnit(settings.targetTemperature[mode], "°C")}</TargetTemperature>
             {status.isDegraded && <DegradedDevice since={status.lastPingTimestamp} />}
         </Container>
     );
@@ -70,13 +71,15 @@ export function DeviceInfoBox() {
     return (
         <InfoBox>
             <DeviceInfo
-                status={useAppSelector((state) => state.device.status[DeviceKind.COOLING])}
+                status={useAppSelector(state => state.device.status[DeviceKind.COOLING])}
+                settings={useAppSelector(state => state.device.settings[DeviceKind.COOLING])}
                 deviceIcon={<CoolingIconMono sx={coolingIconStyle} />}
                 deviceEnabledIcon={<CoolingIcon sx={coolingIconStyle} />}
                 powerOnIcon={<CoolingPoweredOnIcon sx={powerIconStyle} />}
             />
             <DeviceInfo
                 status={useAppSelector((state) => state.device.status[DeviceKind.HEATING])}
+                settings={useAppSelector(state => state.device.settings[DeviceKind.HEATING])}
                 deviceIcon={<HeatingIconMono sx={heatingIconStyle} />}
                 deviceEnabledIcon={<HeatingIcon sx={heatingIconStyle} />}
                 powerOnIcon={<HeatingPoweredOnIcon sx={powerIconStyle} />}

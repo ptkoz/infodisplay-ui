@@ -2,7 +2,7 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { addSeconds, parseISO } from "date-fns";
 import { MAX_PING_AGE_SECONDS } from "./middleware.ts";
 import {
-    DeviceKind,
+    DeviceKind, DeviceSettings,
     DeviceStatus,
     OperatingMode,
     PingPayload,
@@ -17,6 +17,9 @@ export interface DeviceState {
     status: {
         [key in DeviceKind]: DeviceStatus;
     };
+    settings: {
+        [key in DeviceKind]: DeviceSettings;
+    };
 }
 
 const initialState: DeviceState = {
@@ -26,6 +29,15 @@ const initialState: DeviceState = {
             lastPingTimestamp: "1970-01-01T00:00:00",
             isDegraded: true,
             isWorking: false,
+        },
+        [DeviceKind.HEATING]: {
+            lastPingTimestamp: "1970-01-01T00:00:00",
+            isDegraded: true,
+            isWorking: false,
+        },
+    },
+    settings: {
+        [DeviceKind.COOLING]: {
             targetTemperature: {
                 day: MAX_TEMP,
                 night: MAX_TEMP,
@@ -36,9 +48,6 @@ const initialState: DeviceState = {
             },
         },
         [DeviceKind.HEATING]: {
-            lastPingTimestamp: "1970-01-01T00:00:00",
-            isDegraded: true,
-            isWorking: false,
             targetTemperature: {
                 day: MIN_TEMP,
                 night: MIN_TEMP,
@@ -48,7 +57,7 @@ const initialState: DeviceState = {
                 night: [],
             },
         },
-    },
+    }
 };
 
 export const deviceSlice = createSlice({
@@ -67,10 +76,10 @@ export const deviceSlice = createSlice({
             state.status[action.payload.kind].isWorking = action.payload.isWorking;
         },
         updateTargetTemperature: (state, action: PayloadAction<UpdateTargetTemperaturePayload>) => {
-            state.status[action.payload.kind].targetTemperature[action.payload.mode] = action.payload.temperature;
+            state.settings[action.payload.kind].targetTemperature[action.payload.mode] = action.payload.temperature;
         },
         updateDeviceControl: (state, action: PayloadAction<UpdateDeviceControlPayload>) => {
-            state.status[action.payload.deviceKind].controlledBy = action.payload.controlledBy;
+            state.settings[action.payload.deviceKind].controlledBy = action.payload.controlledBy;
         },
         setOperatingMode: (state, action: PayloadAction<OperatingMode>) => {
             state.mode = action.payload
