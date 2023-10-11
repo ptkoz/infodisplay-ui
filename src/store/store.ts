@@ -19,7 +19,7 @@ export const store = configureStore({
             createDeviceDegradeMiddleware(DeviceKind.COOLING),
             createDeviceDegradeMiddleware(DeviceKind.HEATING),
             createMeasureDegradeMiddleware(MeasureKind.LIVING_ROOM, 180),
-            createMeasureDegradeMiddleware(MeasureKind.BEDROOM),
+            createMeasureDegradeMiddleware(MeasureKind.BEDROOM, 180),
             createMeasureDegradeMiddleware(MeasureKind.OUTDOOR),
         )
     },

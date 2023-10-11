@@ -15,8 +15,8 @@ import { DeviceKind, DeviceSettings, DeviceStatus } from "../store/Device/types.
 
 const InfoBox = styled.div`
     position: absolute;
-    right: 1vh;
-    top: min(2vh, 2vw);
+    right: 0.3em;
+    top: 0.6em;
 `;
 
 const Container = styled.div`
@@ -26,16 +26,16 @@ const Container = styled.div`
     justify-content: flex-end;
     margin-bottom: 0.5em;
     position: relative;
+    font-size: 1rem;
 `;
 
 const TargetTemperature = styled.div`
-    font-size: min(3.5vh, 2.5vw);
     margin: 0 0.2em;
 `;
 
 const DegradedDevice = styled(Degraded)`
     top: calc(100% - 0.2em);
-    font-size: min(1.7vh, 1.7vw);
+    font-size: 0.6em;
 `;
 
 interface DeviceInfoProps {
@@ -64,9 +64,9 @@ function DeviceInfo({ status, settings, deviceIcon, deviceEnabledIcon, powerOnIc
 }
 
 export function DeviceInfoBox() {
-    const coolingIconStyle = { fontSize: "min(3vh, 2.5vw)", paddingLeft: "calc(min(0.3vh, 0.3vw) - 0.07em)" };
-    const heatingIconStyle = { fontSize: "min(3.3vh, 2.8vw)", marginRight: "-0.07em" };
-    const powerIconStyle = { fontSize: "min(2vh, 1.6vw)" };
+    const coolingIconStyle = { fontSize: "0.9em", paddingLeft: "0.07rem" };
+    const heatingIconStyle = { fontSize: "1em", marginRight: "-0.07rem" };
+    const powerIconStyle = { fontSize: "0.6em" };
 
     return (
         <InfoBox>

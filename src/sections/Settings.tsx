@@ -24,8 +24,8 @@ type ControllingStatus = DeviceSettings["controlledBy"];
 
 const SettingsButton = styled(IconButton)`
     position: absolute;
-    top: 1vh;
-    right: 1vh;
+    top: 0.2em;
+    right: 0.2em;
     color: #333;
 `;
 
@@ -132,12 +132,12 @@ function Settings() {
                 <Toolbar onClose={handleClose} onSave={handleSave} />
                 <Section>
                     <Grid container>
-                        <Grid xs={3}>
+                        <Grid xs={12} sm={3}>
                             <div style={{ display: "flex", alignItems: "center", gap: "0.5em", paddingTop: "0.4em" }}>
                                 <CoolingIcon /> Chłodzenie
                             </div>
                         </Grid>
-                        <Grid xs={4}>
+                        <Grid xs={6} sm={4}>
                             <FormControlLabel
                                 control={
                                     <Switch
@@ -153,10 +153,10 @@ function Settings() {
                                         )}
                                     />
                                 }
-                                label={`Salon (${DAY_HOURS})`}
+                                label={`Salon (dzień)`}
                             />
                         </Grid>
-                        <Grid xs={4}>
+                        <Grid xs={6} sm={4}>
                             <FormControlLabel
                                 control={
                                     <Switch
@@ -172,17 +172,17 @@ function Settings() {
                                         )}
                                     />
                                 }
-                                label={`Salon (${NIGHT_HOURS})`}
+                                label={`Salon (noc)`}
                             />
                         </Grid>
                     </Grid>
                     <Grid container>
-                        <Grid xs={3}>
+                        <Grid xs={12} sm={3}>
                             <div style={{ display: "flex", alignItems: "center", gap: "0.5em", paddingTop: "0.4em" }}>
                                 <HeatingIcon /> Ogrzewanie
                             </div>
                         </Grid>
-                        <Grid xs={4}>
+                        <Grid xs={6} sm={4}>
                             <FormControlLabel
                                 control={
                                     <Switch
@@ -198,7 +198,7 @@ function Settings() {
                                         )}
                                     />
                                 }
-                                label={`Salon (${DAY_HOURS})`}
+                                label={`Salon (dzień)`}
                             />
                             <FormControlLabel
                                 control={
@@ -213,10 +213,10 @@ function Settings() {
                                         )}
                                     />
                                 }
-                                label={`Sypialnia (${DAY_HOURS})`}
+                                label={`Sypialnia (dzień)`}
                             />
                         </Grid>
-                        <Grid xs={4}>
+                        <Grid xs={6} sm={4}>
                             <FormControlLabel
                                 control={
                                     <Switch
@@ -232,7 +232,7 @@ function Settings() {
                                         )}
                                     />
                                 }
-                                label={`Salon (${NIGHT_HOURS})`}
+                                label={`Salon (noc)`}
                             />
                             <FormControlLabel
                                 control={
@@ -249,7 +249,7 @@ function Settings() {
                                         )}
                                     />
                                 }
-                                label={`Sypialnia (${NIGHT_HOURS})`}
+                                label={`Sypialnia (noc)`}
                             />
                         </Grid>
                     </Grid>

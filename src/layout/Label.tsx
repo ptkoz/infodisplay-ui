@@ -1,10 +1,10 @@
 import styled from "@emotion/styled";
 
 export default styled.h1`
-    font-size: min(3vh, 4vw);
+    font-size: 0.9rem;
     position: absolute;
-    left: min(2vh, 2vw);
-    top: min(2vh, 2vw);
+    left: 0.6rem;
+    top: 0.6rem;
     margin: 0;
     padding: 0;
     font-weight: 100;

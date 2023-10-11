@@ -18,9 +18,8 @@ const ForecastBox = styled(Box)`
 `;
 
 const ForecastItem = styled.div`
-    font-size: min(3vh, 2vw);
-    flex: 0 0 15vw;
-    max-width: 19vw;
+    font-size: 0.5rem;
+    flex: 1 1 auto;
 
     > div {
         text-overflow: ellipsis;
@@ -29,8 +28,16 @@ const ForecastItem = styled.div`
     }
 
     img {
-        height: min(6.5vh, 7vw);
+        height: 20px;
         margin: 0.5em;
+    }
+    
+    @media (min-width: 600px) {
+        font-size: 0.9rem;
+    
+        img {
+            height: 31px;
+        }
     }
 `;
 

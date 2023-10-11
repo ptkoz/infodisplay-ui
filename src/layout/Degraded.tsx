@@ -6,9 +6,9 @@ const Text = styled.div`
     position: absolute;
     left: 0;
     right: 0;
-    top: calc(100% + 0.2em);
+    top: calc(100% + 0.2rem);
     color: #e88010;
-    font-size: min(2.2vh, 2.2vw);
+    font-size: 0.7rem;
     text-align: center;
 `;
 
