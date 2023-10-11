@@ -1,4 +1,4 @@
-import { Dialog, FormControlLabel, IconButton, Switch } from "@mui/material";
+import { Dialog, FormControlLabel, IconButton, Switch, useMediaQuery } from "@mui/material";
 import Grid from "@mui/material/Unstable_Grid2";
 import SettingsIcon from "@mui/icons-material/Settings";
 import DayIcon from "@mui/icons-material/LightMode";
@@ -128,7 +128,7 @@ function Settings() {
             <SettingsButton onClick={handleOpen}>
                 <SettingsIcon />
             </SettingsButton>
-            <Dialog open={isOpened} fullScreen={true} onClose={handleClose} TransitionComponent={SlideTransition}>
+            <Dialog open={isOpened} fullScreen={useMediaQuery("(max-width: 800px)")} onClose={handleClose} TransitionComponent={SlideTransition}>
                 <Toolbar onClose={handleClose} onSave={handleSave} />
                 <Section>
                     <Grid container>

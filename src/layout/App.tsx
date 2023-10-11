@@ -13,6 +13,18 @@ const Container = styled.div`
     display: grid;
     grid-template-columns: 50vw 50vw;
     grid-template-rows: 24vh 44vh 32vh;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    
+    @media (min-width: 1000px) {
+        grid-template-columns: 500px 500px;
+    }
+    
+    @media (min-height: 610px) {
+        grid-template-rows: 170px 270px 170px;
+    }
 `;
 
 const darkTheme = createTheme({
