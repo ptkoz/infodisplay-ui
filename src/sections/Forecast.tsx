@@ -19,7 +19,7 @@ const ForecastBox = styled(Box)`
 
 const ForecastItem = styled.div`
     font-size: 0.5rem;
-    flex: 1 1 auto;
+    flex: 1 1 0;
 
     > div {
         text-overflow: ellipsis;
