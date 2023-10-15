@@ -4,6 +4,7 @@ import { toLocaleUnit } from "../utils/toLocaleUnit.ts";
 import Degraded from "../layout/Degraded.tsx";
 import { ReactNode } from "react";
 import {
+    AwayIcon,
     CoolingPoweredOnIcon,
     CoolingIconMono,
     HeatingPoweredOnIcon,
@@ -39,6 +40,7 @@ const DegradedDevice = styled(Degraded)`
 `;
 
 interface DeviceInfoProps {
+    isAway: boolean;
     status: DeviceStatus;
     settings: DeviceSettings;
     deviceIcon: ReactNode;
@@ -46,7 +48,7 @@ interface DeviceInfoProps {
     powerOnIcon: ReactNode;
 }
 
-function DeviceInfo({ status, settings, deviceIcon, deviceEnabledIcon, powerOnIcon }: DeviceInfoProps) {
+function DeviceInfo({ isAway, status, settings, deviceIcon, deviceEnabledIcon, powerOnIcon }: DeviceInfoProps) {
     const mode = useAppSelector((state) => state.device.mode);
 
     if (settings.controlledBy[mode].length === 0) {
@@ -55,6 +57,7 @@ function DeviceInfo({ status, settings, deviceIcon, deviceEnabledIcon, powerOnIc
 
     return (
         <Container style={{ color: status.isDegraded ? "#222" : "#aaa" }}>
+            {isAway && <AwayIcon/>}
             {status.isWorking && powerOnIcon}
             {status.isWorking ? deviceEnabledIcon : deviceIcon}
             <TargetTemperature>{toLocaleUnit(settings.targetTemperature[mode], "°C")}</TargetTemperature>
@@ -68,18 +71,29 @@ export function DeviceInfoBox() {
     const heatingIconStyle = { fontSize: "1em", marginRight: "-0.07rem" };
     const powerIconStyle = { fontSize: "0.6em" };
 
+    let coolingSettings = useAppSelector((state) => state.device.settings[DeviceKind.COOLING]);
+    let heatingSettings = useAppSelector((state) => state.device.settings[DeviceKind.HEATING]);
+
+    const isAway = useAppSelector((state) => state.device.isAway);
+    if (isAway) {
+        coolingSettings = { ...coolingSettings, controlledBy: { day: [], night: [] } };
+        heatingSettings = { ...heatingSettings, targetTemperature: { day: 15, night: 15 } };
+    }
+
     return (
         <InfoBox>
             <DeviceInfo
-                status={useAppSelector(state => state.device.status[DeviceKind.COOLING])}
-                settings={useAppSelector(state => state.device.settings[DeviceKind.COOLING])}
+                isAway={isAway}
+                status={useAppSelector((state) => state.device.status[DeviceKind.COOLING])}
+                settings={coolingSettings}
                 deviceIcon={<CoolingIconMono sx={coolingIconStyle} />}
                 deviceEnabledIcon={<CoolingIcon sx={coolingIconStyle} />}
                 powerOnIcon={<CoolingPoweredOnIcon sx={powerIconStyle} />}
             />
             <DeviceInfo
+                isAway={isAway}
                 status={useAppSelector((state) => state.device.status[DeviceKind.HEATING])}
-                settings={useAppSelector(state => state.device.settings[DeviceKind.HEATING])}
+                settings={heatingSettings}
                 deviceIcon={<HeatingIconMono sx={heatingIconStyle} />}
                 deviceEnabledIcon={<HeatingIcon sx={heatingIconStyle} />}
                 powerOnIcon={<HeatingPoweredOnIcon sx={powerIconStyle} />}

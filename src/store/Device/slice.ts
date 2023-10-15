@@ -14,6 +14,7 @@ import { MAX_TEMP, MIN_TEMP } from "../../sections/Settings/TemperatureMarks.ts"
 
 export interface DeviceState {
     mode: OperatingMode;
+    isAway: boolean;
     status: {
         [key in DeviceKind]: DeviceStatus;
     };
@@ -24,6 +25,7 @@ export interface DeviceState {
 
 const initialState: DeviceState = {
     mode: OperatingMode.DAY,
+    isAway: false,
     status: {
         [DeviceKind.COOLING]: {
             lastPingTimestamp: "1970-01-01T00:00:00",
@@ -72,8 +74,11 @@ export const deviceSlice = createSlice({
             state.status[kind].lastPingTimestamp = timestamp;
             state.status[kind].isDegraded = addSeconds(parseISO(timestamp), MAX_PING_AGE_SECONDS) < new Date();
         },
-        updateStatus: (state, action: PayloadAction<UpdateStatusPayload>) => {
+        updateDeviceStatus: (state, action: PayloadAction<UpdateStatusPayload>) => {
             state.status[action.payload.kind].isWorking = action.payload.isWorking;
+        },
+        updateAwayStatus: (state, action: PayloadAction<boolean>) => {
+            state.isAway = action.payload;
         },
         updateTargetTemperature: (state, action: PayloadAction<UpdateTargetTemperaturePayload>) => {
             state.settings[action.payload.kind].targetTemperature[action.payload.mode] = action.payload.temperature;
@@ -83,7 +88,7 @@ export const deviceSlice = createSlice({
         },
         setOperatingMode: (state, action: PayloadAction<OperatingMode>) => {
             state.mode = action.payload
-        }
+        },
     },
 });
 

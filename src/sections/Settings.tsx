@@ -94,33 +94,41 @@ function Settings() {
 
     const devicesSettings = useAppSelector((state) => state.device.settings);
 
+    const defaultIsAway = useAppSelector((state) => state.device.isAway);
     const defaultTargetTemp = useMemo(
         () =>
-            Object.fromEntries(Object.entries(devicesSettings).map(([kind, settings]) => [kind, settings.targetTemperature])),
+            Object.fromEntries(
+                Object.entries(devicesSettings).map(([kind, settings]) => [kind, settings.targetTemperature]),
+            ),
         [devicesSettings],
     );
     const defaultControlMeasures = useMemo(
-        () => Object.fromEntries(Object.entries(devicesSettings).map(([kind, settings]) => [kind, settings.controlledBy])),
+        () =>
+            Object.fromEntries(
+                Object.entries(devicesSettings).map(([kind, settings]) => [kind, settings.controlledBy]),
+            ),
         [devicesSettings],
     );
 
     const [targetTemp, setTargetTemp] = useState(defaultTargetTemp);
     const [controlMeasures, setControlMeasures] = useState(defaultControlMeasures);
+    const [isAway, setIsAway] = useState(defaultIsAway);
 
     useEffect(() => setTargetTemp(defaultTargetTemp), [defaultTargetTemp, isOpened]);
     useEffect(() => setControlMeasures(defaultControlMeasures), [defaultControlMeasures, isOpened]);
+    useEffect(() => setIsAway(defaultIsAway), [defaultIsAway, isOpened]);
 
     const handleSave = () => {
         try {
             sendToBackend({
+                isAway,
+                controlMeasures,
                 targetTemperature: targetTemp,
-                controlMeasures: controlMeasures,
             });
             handleClose();
         } catch {
-            alert('Saving failed!')
+            alert("Saving failed!");
         }
-
     };
 
     return (
@@ -128,8 +136,13 @@ function Settings() {
             <SettingsButton onClick={handleOpen}>
                 <SettingsIcon />
             </SettingsButton>
-            <Dialog open={isOpened} fullScreen={useMediaQuery("(max-width: 800px)")} onClose={handleClose} TransitionComponent={SlideTransition}>
-                <Toolbar onClose={handleClose} onSave={handleSave} />
+            <Dialog
+                open={isOpened}
+                fullScreen={useMediaQuery("(max-width: 800px)")}
+                onClose={handleClose}
+                TransitionComponent={SlideTransition}
+            >
+                <Toolbar onClose={handleClose} onSave={handleSave} isAway={isAway} onIsAwayChange={setIsAway} />
                 <Section>
                     <Grid container>
                         <Grid xs={12} sm={3}>
