@@ -17,8 +17,8 @@ import { MeasureKind } from "../store/Measures/types.ts";
 import { DeviceKind, DeviceSettings, OperatingMode } from "../store/Device/types.ts";
 import { sendToBackend } from "../store/BackendSynchronization.ts";
 
-const DAY_HOURS = "06:00 - 22:59";
-const NIGHT_HOURS = "23:00 - 05:59";
+const DAY_HOURS = "06:00 - 21:59";
+const NIGHT_HOURS = :00 - 05:59";
 
 type ControllingStatus = DeviceSettings["controlledBy"];
 
