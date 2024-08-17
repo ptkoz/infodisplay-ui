@@ -46,7 +46,7 @@ function App() {
                 <Container>
                     <LivingRoom />
                     <Bedroom />
-                    <Outdoor />
+                    <Outdoor useForecastTempInsteadOfStatusTemp={true} />
                     <Forecast />
                     <Settings />
                 </Container>

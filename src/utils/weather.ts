@@ -10,6 +10,7 @@ export interface CurrentWeather {
     code: string;
     desc: string;
     humidity?: number;
+    temperature?: number;
 }
 
 export interface WeatherResponse {
@@ -18,6 +19,7 @@ export interface WeatherResponse {
         description: string;
     }[];
     main: {
+        temp?: number;
         humidity?: number;
     }
 }
@@ -40,6 +42,7 @@ export const getCurrentWeather = async (): Promise<CurrentWeather> => {
         code: data.weather[0].icon,
         desc: data.weather[0].description,
         humidity: data.main.humidity,
+        temperature: data.main.temp,
     };
 };
 

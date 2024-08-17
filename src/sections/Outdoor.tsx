@@ -38,7 +38,11 @@ const Weather = styled.div`
     }
 `;
 
-function Outdoor() {
+export interface OutdoorProps {
+    useForecastTempInsteadOfStatusTemp: boolean;
+}
+
+function Outdoor({ useForecastTempInsteadOfStatusTemp }: OutdoorProps) {
     const status = useAppSelector((state) => state.measure[MeasureKind.OUTDOOR]);
     const [weather, setWeather] = useState<CurrentWeather>({ code: "01d", desc: "słonecznie" });
 
@@ -76,10 +80,10 @@ function Outdoor() {
                 <img src={`/assets/${weather.code}.svg`} alt={weather.desc} />
                 {weather.desc}
             </Weather>
-            <Value isDegraded={status.isDegraded}>
-                {toLocaleUnit(status.temperature, "°C")}
+            <Value isDegraded={status.isDegraded && !useForecastTempInsteadOfStatusTemp}>
+                {toLocaleUnit(weather.temperature, "°C")}
                 <Humidity>{toLocaleFixed(weather.humidity)}%</Humidity>
-                {status.isDegraded && <Degraded since={status.lastTemperatureUpdate} />}
+                {status.isDegraded && !useForecastTempInsteadOfStatusTemp && <Degraded since={status.lastTemperatureUpdate} />}
             </Value>
         </OutdoorBox>
     );
