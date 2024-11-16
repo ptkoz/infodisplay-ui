@@ -8,7 +8,7 @@ import {
     PingPayload,
     UpdateDeviceControlPayload,
     UpdateStatusPayload,
-    UpdateTargetTemperaturePayload,
+    UpdateThresholdTemperaturePayload,
 } from "./types.ts";
 import { MAX_TEMP, MIN_TEMP } from "../../sections/Settings/TemperatureMarks.ts";
 
@@ -40,7 +40,7 @@ const initialState: DeviceState = {
     },
     settings: {
         [DeviceKind.COOLING]: {
-            targetTemperature: {
+            thresholdTemperature: {
                 day: MAX_TEMP,
                 night: MAX_TEMP,
             },
@@ -50,7 +50,7 @@ const initialState: DeviceState = {
             },
         },
         [DeviceKind.HEATING]: {
-            targetTemperature: {
+            thresholdTemperature: {
                 day: MIN_TEMP,
                 night: MIN_TEMP,
             },
@@ -80,8 +80,8 @@ export const deviceSlice = createSlice({
         updateAwayStatus: (state, action: PayloadAction<boolean>) => {
             state.isAway = action.payload;
         },
-        updateTargetTemperature: (state, action: PayloadAction<UpdateTargetTemperaturePayload>) => {
-            state.settings[action.payload.kind].targetTemperature[action.payload.mode] = action.payload.temperature;
+        updateThresholdTemperature: (state, action: PayloadAction<UpdateThresholdTemperaturePayload>) => {
+            state.settings[action.payload.kind].thresholdTemperature[action.payload.mode] = action.payload.temperature;
         },
         updateDeviceControl: (state, action: PayloadAction<UpdateDeviceControlPayload>) => {
             state.settings[action.payload.deviceKind].controlledBy = action.payload.controlledBy;

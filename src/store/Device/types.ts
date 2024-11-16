@@ -17,7 +17,7 @@ export interface DeviceStatus {
 }
 
 export interface DeviceSettings {
-    targetTemperature: { // what is the target temperature set for this device
+    thresholdTemperature: { // what is the treshold temperature set for this device
         [key in OperatingMode]: number;
     };
     controlledBy: { // what measures do control this device
@@ -35,9 +35,9 @@ export interface UpdateStatusPayload {
     isWorking: boolean; // whether device is turned on or not
 }
 
-export interface UpdateTargetTemperaturePayload {
-    kind: DeviceKind; // for which device this target temperature applies
-    mode: OperatingMode; // for which operating mode this target temperature applies
+export interface UpdateThresholdTemperaturePayload {
+    kind: DeviceKind; // for which device this threshold temperature applies
+    mode: OperatingMode; // for which operating mode this threshold temperature applies
     temperature: number; // the temperature
 }
 

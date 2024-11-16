@@ -30,7 +30,7 @@ const Container = styled.div`
     font-size: 1rem;
 `;
 
-const TargetTemperature = styled.div`
+const ConfiguredTemperature = styled.div`
     margin: 0 0.2em;
 `;
 
@@ -60,7 +60,7 @@ function DeviceInfo({ isAway, status, settings, deviceIcon, deviceEnabledIcon, p
             {isAway && <AwayIcon/>}
             {status.isWorking && powerOnIcon}
             {status.isWorking ? deviceEnabledIcon : deviceIcon}
-            <TargetTemperature>{toLocaleUnit(settings.targetTemperature[mode], "°C")}</TargetTemperature>
+            <ConfiguredTemperature>{toLocaleUnit(settings.thresholdTemperature[mode], "°C")}</ConfiguredTemperature>
             {status.isDegraded && <DegradedDevice since={status.lastPingTimestamp} />}
         </Container>
     );
@@ -77,7 +77,7 @@ export function DeviceInfoBox() {
     const isAway = useAppSelector((state) => state.device.isAway);
     if (isAway) {
         coolingSettings = { ...coolingSettings, controlledBy: { day: [], night: [] } };
-        heatingSettings = { ...heatingSettings, targetTemperature: { day: 15, night: 15 } };
+        heatingSettings = { ...heatingSettings, thresholdTemperature: { day: 15, night: 15 } };
     }
 
     return (

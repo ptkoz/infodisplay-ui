@@ -95,10 +95,10 @@ function Settings() {
     const devicesSettings = useAppSelector((state) => state.device.settings);
 
     const defaultIsAway = useAppSelector((state) => state.device.isAway);
-    const defaultTargetTemp = useMemo(
+    const defaultThresholdTemp = useMemo(
         () =>
             Object.fromEntries(
-                Object.entries(devicesSettings).map(([kind, settings]) => [kind, settings.targetTemperature]),
+                Object.entries(devicesSettings).map(([kind, settings]) => [kind, settings.thresholdTemperature]),
             ),
         [devicesSettings],
     );
@@ -110,11 +110,11 @@ function Settings() {
         [devicesSettings],
     );
 
-    const [targetTemp, setTargetTemp] = useState(defaultTargetTemp);
+    const [thresholdTemp, setThresholdTemp] = useState(defaultThresholdTemp);
     const [controlMeasures, setControlMeasures] = useState(defaultControlMeasures);
     const [isAway, setIsAway] = useState(defaultIsAway);
 
-    useEffect(() => setTargetTemp(defaultTargetTemp), [defaultTargetTemp, isOpened]);
+    useEffect(() => setThresholdTemp(defaultThresholdTemp), [defaultThresholdTemp, isOpened]);
     useEffect(() => setControlMeasures(defaultControlMeasures), [defaultControlMeasures, isOpened]);
     useEffect(() => setIsAway(defaultIsAway), [defaultIsAway, isOpened]);
 
@@ -123,7 +123,7 @@ function Settings() {
             sendToBackend({
                 isAway,
                 controlMeasures,
-                targetTemperature: targetTemp,
+                thresholdTemperature: thresholdTemp,
             });
             handleClose();
         } catch {
@@ -270,26 +270,26 @@ function Settings() {
                 <SectionHeader>
                     <DayIcon />
                     <SectionHeader.Text>W dzień ({DAY_HOURS})</SectionHeader.Text>
-                    <HeatingIcon /> {toLocaleUnit(targetTemp[DeviceKind.HEATING].day, "°C")}
-                    <CoolingIcon /> {toLocaleUnit(targetTemp[DeviceKind.COOLING].day, "°C")}
+                    <HeatingIcon /> {toLocaleUnit(thresholdTemp[DeviceKind.HEATING].day, "°C")}
+                    <CoolingIcon /> {toLocaleUnit(thresholdTemp[DeviceKind.COOLING].day, "°C")}
                 </SectionHeader>
                 <Section>
                     <TemperatureSlider
-                        value={[targetTemp[DeviceKind.HEATING].day, targetTemp[DeviceKind.COOLING].day]}
-                        onChange={createTempHandler(targetTemp, OperatingMode.DAY, setTargetTemp)}
+                        value={[thresholdTemp[DeviceKind.HEATING].day, thresholdTemp[DeviceKind.COOLING].day]}
+                        onChange={createTempHandler(thresholdTemp, OperatingMode.DAY, setThresholdTemp)}
                         marks={temperatureMarks}
                     />
                 </Section>
                 <SectionHeader>
                     <NightIcon />
                     <SectionHeader.Text>W nocy ({NIGHT_HOURS})</SectionHeader.Text>
-                    <HeatingIcon /> {toLocaleUnit(targetTemp[DeviceKind.HEATING].night, "°C")}
-                    <CoolingIcon /> {toLocaleUnit(targetTemp[DeviceKind.COOLING].night, "°C")}
+                    <HeatingIcon /> {toLocaleUnit(thresholdTemp[DeviceKind.HEATING].night, "°C")}
+                    <CoolingIcon /> {toLocaleUnit(thresholdTemp[DeviceKind.COOLING].night, "°C")}
                 </SectionHeader>
                 <Section>
                     <TemperatureSlider
-                        value={[targetTemp[DeviceKind.HEATING].night, targetTemp[DeviceKind.COOLING].night]}
-                        onChange={createTempHandler(targetTemp, OperatingMode.NIGHT, setTargetTemp)}
+                        value={[thresholdTemp[DeviceKind.HEATING].night, thresholdTemp[DeviceKind.COOLING].night]}
+                        onChange={createTempHandler(thresholdTemp, OperatingMode.NIGHT, setThresholdTemp)}
                         marks={temperatureMarks}
                     />
                 </Section>
