@@ -68,7 +68,7 @@ export interface ForecastResponse {
 
 export const getWeatherForecast = async (): Promise<WeatherForecast[]> => {
     const response = await fetch(
-        `https://api.openweathermap.org/data/2.5/forecast?lat=${LAT}&lon=${LON}&appid=${API_KEY}&units=metric&cnt=4&lang=pl`,
+        `https://api.openweathermap.org/data/2.5/forecast?lat=${LAT}&lon=${LON}&appid=${API_KEY}&units=metric&cnt=5&lang=pl`,
     );
     if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);

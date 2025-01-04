@@ -80,7 +80,7 @@ function Forecast() {
                 <iframe
                     id="airly_1499970474"
                     src="https://airly.org/widget/v2/?width=200height=150&displayMeasurements=false&displayCAQI=true&autoHeight=false&autoWidth=false&language=pl&indexType=AIRLY_US_AQI&unitSpeed=metric&unitTemperature=celsius&latitude=51.0835207349&longitude=17.01502344"
-                    style={{ border: "0px none" }}
+                    style={{ border: "0px none", width: "200px" }}
                 ></iframe>
             </AirQuality>
             {forecast.map((item, key) => (
