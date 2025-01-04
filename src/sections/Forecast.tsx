@@ -41,8 +41,8 @@ const ForecastItem = styled.div`
     }
 `;
 
-const AirQuality = styled(ForecastItem)`
-    margin-right: 1remq;
+const AirQualityq = styled(ForecastItem)`
+    margin-right: 1rem;
 `;
 
 function Forecast() {
