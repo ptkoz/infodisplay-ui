@@ -31,14 +31,18 @@ const ForecastItem = styled.div`
         height: 20px;
         margin: 0.5em;
     }
-    
+
     @media (min-width: 600px) {
         font-size: 0.9rem;
-    
+
         img {
             height: 31px;
         }
     }
+`;
+
+const AirQuality = styled(ForecastItem)`
+    margin-right: 1remq;
 `;
 
 function Forecast() {
@@ -50,7 +54,7 @@ function Forecast() {
         const refreshForecast = () => {
             runBackgroundTask(async () => {
                 setForecast(await getWeatherForecast());
-            })
+            });
 
             // Run 10 seconds after at next full hour
             const now = new Date();
@@ -72,6 +76,13 @@ function Forecast() {
 
     return (
         <ForecastBox>
+            <AirQuality>
+                <iframe
+                    id="airly_1499970474"
+                    src="https://airly.org/widget/v2/?width=200height=150&displayMeasurements=false&displayCAQI=true&autoHeight=false&autoWidth=false&language=pl&indexType=AIRLY_US_AQI&unitSpeed=metric&unitTemperature=celsius&latitude=51.0835207349&longitude=17.01502344"
+                    style={{ border: "0px none" }}
+                ></iframe>
+            </AirQuality>
             {forecast.map((item, key) => (
                 <ForecastItem key={key}>
                     <div>{format(item.date, "EE, HH:mm")}</div>

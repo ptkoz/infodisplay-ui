@@ -21,7 +21,7 @@ export interface WeatherResponse {
     main: {
         temp?: number;
         humidity?: number;
-    }
+    };
 }
 
 export const getCurrentWeather = async (): Promise<CurrentWeather> => {
@@ -68,7 +68,7 @@ export interface ForecastResponse {
 
 export const getWeatherForecast = async (): Promise<WeatherForecast[]> => {
     const response = await fetch(
-        `https://api.openweathermap.org/data/2.5/forecast?lat=${LAT}&lon=${LON}&appid=${API_KEY}&units=metric&cnt=7&lang=pl`,
+        `https://api.openweathermap.org/data/2.5/forecast?lat=${LAT}&lon=${LON}&appid=${API_KEY}&units=metric&cnt=4&lang=pl`,
     );
     if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
@@ -80,12 +80,17 @@ export const getWeatherForecast = async (): Promise<WeatherForecast[]> => {
     }
 
     const minDisplayDate = addHours(new Date(), 1);
-    return data.list.map((item): WeatherForecast => ({
-        date: fromUnixTime(item.dt),
-        code: item.weather[0].icon,
-        desc: item.weather[0].description,
-        temperature: item.main.temp,
-    })).filter((item) => item.date > minDisplayDate).slice(0, 6)
+    return data.list
+        .map(
+            (item): WeatherForecast => ({
+                date: fromUnixTime(item.dt),
+                code: item.weather[0].icon,
+                desc: item.weather[0].description,
+                temperature: item.main.temp,
+            }),
+        )
+        .filter((item) => item.date > minDisplayDate)
+        .slice(0, 6);
 };
 
 /**

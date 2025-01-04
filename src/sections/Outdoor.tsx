@@ -27,7 +27,7 @@ const Weather = styled.div`
         height: 1.8em;
         margin-bottom: 0.2em;
     }
-    
+
     @media (min-width: 700px) {
         font-size: 0.45em;
 
@@ -83,7 +83,9 @@ function Outdoor({ useForecastTempInsteadOfStatusTemp }: OutdoorProps) {
             <Value isDegraded={status.isDegraded && !useForecastTempInsteadOfStatusTemp}>
                 {toLocaleUnit(weather.temperature, "°C")}
                 <Humidity>{toLocaleFixed(weather.humidity)}%</Humidity>
-                {status.isDegraded && !useForecastTempInsteadOfStatusTemp && <Degraded since={status.lastTemperatureUpdate} />}
+                {status.isDegraded && !useForecastTempInsteadOfStatusTemp && (
+                    <Degraded since={status.lastTemperatureUpdate} />
+                )}
             </Value>
         </OutdoorBox>
     );
