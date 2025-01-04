@@ -41,7 +41,7 @@ const ForecastItem = styled.div`
     }
 `;
 
-const AirQualityq = styled(ForecastItem)`
+const AirQuality = styled(ForecastItem)`
     margin-right: 1rem;
 `;
 
